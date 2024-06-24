@@ -1,0 +1,28 @@
+.imageAvatar {
+  max-width: 100px;
+  max-height: 100px;
+}
+
+.imageFlag {
+  width: 1.5rem;
+  padding: 0px;
+  border-radius: 50%;
+}
+.parentBox {
+  max-height: 102px;
+}
+@media screen and (min-width: 576px) {
+  .imageAvatar {
+    max-width: 141px;
+    max-height: 141px;
+  }
+
+  .imageFlag {
+    width: 1rem;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .parentBox {
+    max-height: 143px;
+  }
+}
