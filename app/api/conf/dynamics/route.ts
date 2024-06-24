@@ -6,6 +6,7 @@ export const POST = async function (request: NextRequest) {
   const body = await request.json();
 
   logger.info(body);
+  logger.info(body.verifiedCredentials);
   return new Response(JSON.stringify("Done"), {
     status: 200,
     headers: HEADERS,

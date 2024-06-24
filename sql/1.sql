@@ -1,9 +1,4 @@
--- PROCEDURE: public.update_leaderboard()
-
--- DROP PROCEDURE IF EXISTS public.update_leaderboard();
-
-CREATE OR REPLACE PROCEDURE public.update_leaderboard(
-	)
+CREATE OR REPLACE PROCEDURE public.update_leaderboard()
 LANGUAGE 'plpgsql'
 AS $BODY$
 DECLARE

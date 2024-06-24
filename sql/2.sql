@@ -2,8 +2,7 @@
 
 -- DROP PROCEDURE IF EXISTS public.upsert_matches(jsonb);
 
-CREATE OR REPLACE PROCEDURE public.upsert_matches(
-	IN matches jsonb)
+CREATE OR REPLACE PROCEDURE public.upsert_matches(IN matches jsonb)
 LANGUAGE 'plpgsql'
 AS $BODY$
 DECLARE
