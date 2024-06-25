@@ -5,7 +5,6 @@ import { Webhooks } from "@octokit/webhooks";
 import { isEventProcessed, saveNewEvent } from "@/lib/data/db";
 import {
   saveFarcasterData,
-  saveSmartWalletData,
   saveTwitterData,
   saveWalletData,
 } from "@/lib/dynamic/db";

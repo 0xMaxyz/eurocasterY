@@ -64,13 +64,3 @@ export async function saveWalletData(data: WalletPayload) {
   await saveUserData(userId, username, profilePicture);
   await saveProviderData(userId, "wallet", providerIdentifier);
 }
-
-export async function saveSmartWalletData(data: SmartWalletPayload) {
-  const userId = data.userId;
-  const username = "";
-  const profilePicture = null;
-  const providerIdentifier = data.data.verifiedCredentials[0].address;
-
-  await saveUserData(userId, username, profilePicture);
-  await saveProviderData(userId, "smart_wallet", providerIdentifier);
-}
