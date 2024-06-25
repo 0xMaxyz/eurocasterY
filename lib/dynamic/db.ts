@@ -13,7 +13,9 @@ async function saveUserData(
         ON CONFLICT (user_id) DO NOTHING
       `;
     logger.info(`Db:: New user, ${userId}, ${username}, ${profilePicture},`);
-  } catch (error) {}
+  } catch (error) {
+    logger.error(`DB::Error::${error}`);
+  }
 }
 
 async function saveProviderData(
@@ -30,7 +32,9 @@ async function saveProviderData(
     logger.info(
       `Db:: New Provider, ${userId}, ${providerName}, ${providerIdentifier},`
     );
-  } catch (error) {}
+  } catch (error) {
+    logger.error(`DB::Error::${error}`);
+  }
 }
 
 export async function saveFarcasterData(data: FarcasterPayload) {
