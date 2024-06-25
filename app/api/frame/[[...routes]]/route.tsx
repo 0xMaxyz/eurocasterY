@@ -1,7 +1,7 @@
 /** @jsxImportSource frog/jsx */
 
 import { CountryCode, countryCodeToName } from "@/lib/consts";
-import { getMatchInfo, predict } from "@/lib/data/db";
+import { getMatchInfo, getUserOrCreate, predict } from "@/lib/data/db";
 import logger from "@/lib/logger";
 import { Button, FrameResponse, Frog } from "frog";
 import { devtools } from "frog/dev";
@@ -139,11 +139,11 @@ app.frame("/predict", async (c) => {
   console.log(values);
   const id = values![0];
   const prediction = values![1];
+  const userId = await getUserOrCreate(frameData!.fid);
   const predictResult = await predict({
-    fid: frameData!.fid,
+    user_id: userId,
     match_id: id,
     prediction: prediction,
-    x: "",
   });
   if (!predictResult || predictResult.has_error) {
     return c.error({ message: predictResult.error_message! });

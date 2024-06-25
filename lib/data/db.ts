@@ -1,4 +1,5 @@
 import { sql } from "@vercel/postgres";
+import { v4 as uuidv4 } from "uuid";
 import logger from "../logger";
 import {
   LeaderboardData,
@@ -519,3 +520,75 @@ export const updateLeaderboard = async function () {
     );
   }
 };
+
+async function getUserByProvider(
+  providerName: string,
+  providerIdentifier: string
+): Promise<string | null> {
+  try {
+    const result = await sql`
+      SELECT user_id FROM login_providers WHERE provider_name = ${providerName} AND provider_identifier = ${providerIdentifier}
+    `;
+    return result.rows.length > 0 ? result.rows[0].user_id : null;
+  } catch (error) {
+    logger.error(`Db:: Error executing getUserByProvider query, ${error}`);
+    return null;
+  }
+}
+
+export interface NewUser {
+  user_id: string;
+  username: string;
+  profile_picture?: string;
+}
+
+async function createNewUser(fid: number): Promise<NewUser> {
+  try {
+    // Generate a new UUID for the user
+    const userId = uuidv4();
+
+    // Insert into users table
+    const userQuery = {
+      text: "INSERT INTO users(user_id, created_at) VALUES($1, NOW()) RETURNING *",
+      values: [userId],
+    };
+
+    const userResult = await sql.query(userQuery);
+    const newUser = userResult.rows[0];
+
+    // Insert into login_providers table
+    const loginProviderQuery = {
+      text: "INSERT INTO login_providers(user_id, provider_name, provider_identifier) VALUES($1, $2, $3)",
+      values: [userId, "farcaster", fid.toString()],
+    };
+
+    await sql.query(loginProviderQuery);
+
+    return {
+      user_id: newUser.user_id,
+      username: newUser.username,
+      profile_picture: newUser.profile_picture,
+    };
+  } catch (error) {
+    // Rollback transaction in case of error
+    logger.error("Error executing createNewUser query:", error);
+    throw error;
+  }
+}
+
+export async function getUserOrCreate(fid: number): Promise<string> {
+  try {
+    const existingUserId = await getUserByProvider("farcaster", fid.toString());
+
+    if (existingUserId) {
+      return existingUserId;
+    } else {
+      const newUser = await createNewUser(fid);
+
+      return newUser.user_id;
+    }
+  } catch (error) {
+    console.error("Error in getUserOrCreate:", error);
+    throw error;
+  }
+}
