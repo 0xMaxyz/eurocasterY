@@ -552,7 +552,10 @@ const Matches = () => {
                         </Button>
                       </Stack>
                       <Typography fontSize="0.5rem" color="textSecondary">
-                        {utcToLocal(match.match_date)}
+                        {new Date(match.match_date).toLocaleString(
+                          "en-US",
+                          dateOptions
+                        )}
                       </Typography>
                     </Stack>
                     <img
