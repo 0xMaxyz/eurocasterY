@@ -22,6 +22,15 @@ export const createTables = async function () {
     //     group_name VARCHAR(1) NOT NULL UNIQUE
     // );
     // `;
+    // Create processed events
+    await sql`
+CREATE TABLE processed_events (
+  id SERIAL PRIMARY KEY,
+  message_id VARCHAR(255) UNIQUE NOT NULL,
+  processed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+`;
+
     // Create Teams Table
     await sql`
 CREATE TABLE IF NOT EXISTS teams (
@@ -235,6 +244,17 @@ export const getLeaderboardData = async function (
   } catch (error) {
     logger.error(`Db:: Error reading leaderboard, ${error}`);
     return null;
+  }
+};
+
+export const isEventProcessed = async function (message_id: string) {
+  try {
+    const resp = await sql`
+  SELECT message_id FROM processed_events WHERE message_id = ${message_id}
+  `;
+    return resp.rowCount == 0;
+  } catch (error) {
+    return false;
   }
 };
 
