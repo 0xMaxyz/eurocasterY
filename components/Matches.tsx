@@ -228,6 +228,23 @@ const Matches = () => {
     );
   };
 
+  const utcToLocal = function (refUTC: string) {
+    const matchDate = new Date(refUTC);
+    const conv = new Date(
+      matchDate.getTime() - matchDate.getTimezoneOffset() * 60000
+    );
+    return new Date(conv).toLocaleString("en-US", dateOptions);
+  };
+
+  const isKickoffPassed = function (refUTC: string) {
+    const matchDate = new Date(refUTC);
+    const currentTime = new Date();
+    const currentTimeUTC = new Date(
+      currentTime.getTime() + currentTime.getTimezoneOffset() * 60000
+    );
+    return currentTimeUTC < matchDate;
+  };
+
   return (
     <Box>
       <Snackbar
@@ -267,122 +284,174 @@ const Matches = () => {
         ? Array.from(new Array(5)).map((_, index) =>
             renderSkeleton(`matches-key-${index}`)
           )
-        : matches.map((match, index) => (
-            <>
-              <Box
-                className="parentBox"
-                key={`${match.match_id}-${match.home_country_short}-${match.away_country_short}`}
-                sx={{
-                  position: "relative",
-                  marginBottom: "0",
-                  borderRadius: "0px",
-                  borderTop: "1px solid #DCDCDC",
-                  borderBottom: "1px solid #DCDCDC",
-                  borderLeft: "none",
-                  borderRight: "none",
-                  paddingRight: ["0.725rem", "1rem"],
-                  paddingLeft: ["0.725rem", "1rem"],
-                  // minHeight: "143px",
-                  boxSizing: "border-box",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  sx={{ padding: "0px", flex: "1 0 auto" }}
+        : matches
+            .filter((m) => isKickoffPassed(m.match_date))
+            .map((match, index) => (
+              <>
+                <Box
+                  className="parentBox"
+                  key={`${match.match_id}-${match.home_country_short}-${match.away_country_short}`}
+                  sx={{
+                    position: "relative",
+                    marginBottom: "0",
+                    borderRadius: "0px",
+                    borderTop: "1px solid #DCDCDC",
+                    borderBottom: "1px solid #DCDCDC",
+                    borderLeft: "none",
+                    borderRight: "none",
+                    paddingRight: ["0.725rem", "1rem"],
+                    paddingLeft: ["0.725rem", "1rem"],
+                    // minHeight: "143px",
+                    boxSizing: "border-box",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                 >
-                  {/* {`${isAuthenticated}, ${isButtonDiabled(
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    sx={{ padding: "0px", flex: "1 0 auto" }}
+                  >
+                    {/* {`${isAuthenticated}, ${isButtonDiabled(
                   match,
                   match.home_country_short
                 )},${isButtonDiabled(match, "0")},${isButtonDiabled(
                   match,
                   match.away_country_short
                 )}`} */}
-                  <img
-                    src={`/eurocaster_assets/avatars/${match.home_country_short}.png`}
-                    className={styles.imageAvatar}
-                    alt={match.home_country_short}
-                  />
-                  <Stack
-                    direction="column"
-                    justifyContent={"end"}
-                    alignItems="center"
-                    sx={{ flex: 1, marginBottom: "10px" }}
-                  >
-                    <Typography
-                      fontSize="0.75rem"
-                      fontWeight={900}
-                      color="textSecondary"
-                      marginBottom={"8px"}
-                    >
-                      WHO WILL WIN?
-                    </Typography>
+                    <img
+                      src={`/eurocaster_assets/avatars/${match.home_country_short}.png`}
+                      className={styles.imageAvatar}
+                      alt={match.home_country_short}
+                    />
                     <Stack
-                      direction="row"
-                      sx={{
-                        width: "100%",
-                        maxWidth: ["150px", "230px"],
-                        height: "40px",
-                        backgroundColor: "#F7F7F7",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "40px",
-                        border: "1px solid #DCDCDC",
-                        marginBottom: "8px",
-                        paddingLeft: "4px",
-                        paddingRight: "4px",
-                        boxSizing: "border-box",
-                      }}
+                      direction="column"
+                      justifyContent={"end"}
+                      alignItems="center"
+                      sx={{ flex: 1, marginBottom: "10px" }}
                     >
-                      <Button
-                        sx={{ padding: "0px", flexShrink: 0, minWidth: ["0"] }}
-                        disabled={isButtonDiabled(
-                          match,
-                          match.home_country_short
-                        )}
-                        onClick={() =>
-                          vote(match.match_id, match.home_country_short)
-                        }
+                      <Typography
+                        fontSize="0.75rem"
+                        fontWeight={900}
+                        color="textSecondary"
+                        marginBottom={"8px"}
                       >
-                        <Stack direction="row" alignItems="center">
-                          <img
-                            src={match.home_logo}
-                            className={styles.imageFlag}
-                            alt={match.home_country}
-                            style={{
-                              border: isAuthenticated
-                                ? matchColor(
-                                    match.match_id.toString(),
-                                    match.home_country_short,
-                                    "2px solid green",
-                                    "none",
-                                    "none"
-                                  )
-                                : "none",
-                              opacity: isAuthenticated
-                                ? matchColor(
-                                    match.match_id.toString(),
-                                    match.home_country_short,
-                                    "1",
-                                    "0.5",
-                                    "1"
-                                  )
-                                : "1",
-                            }}
-                          />
+                        WHO WILL WIN?
+                      </Typography>
+                      <Stack
+                        direction="row"
+                        sx={{
+                          width: "100%",
+                          maxWidth: ["150px", "230px"],
+                          height: "40px",
+                          backgroundColor: "#F7F7F7",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          borderRadius: "40px",
+                          border: "1px solid #DCDCDC",
+                          marginBottom: "8px",
+                          paddingLeft: "4px",
+                          paddingRight: "4px",
+                          boxSizing: "border-box",
+                        }}
+                      >
+                        <Button
+                          sx={{
+                            padding: "0px",
+                            flexShrink: 0,
+                            minWidth: ["0"],
+                          }}
+                          disabled={isButtonDiabled(
+                            match,
+                            match.home_country_short
+                          )}
+                          onClick={() =>
+                            vote(match.match_id, match.home_country_short)
+                          }
+                        >
+                          <Stack direction="row" alignItems="center">
+                            <img
+                              src={match.home_logo}
+                              className={styles.imageFlag}
+                              alt={match.home_country}
+                              style={{
+                                border: isAuthenticated
+                                  ? matchColor(
+                                      match.match_id.toString(),
+                                      match.home_country_short,
+                                      "2px solid green",
+                                      "none",
+                                      "none"
+                                    )
+                                  : "none",
+                                opacity: isAuthenticated
+                                  ? matchColor(
+                                      match.match_id.toString(),
+                                      match.home_country_short,
+                                      "1",
+                                      "0.5",
+                                      "1"
+                                    )
+                                  : "1",
+                              }}
+                            />
+                            <Typography
+                              fontSize="0.75rem"
+                              fontWeight={900}
+                              mx="4px"
+                              sx={{
+                                display: { xs: "none", sm: "block" },
+                                color: isAuthenticated
+                                  ? matchColor(
+                                      match.match_id.toString(),
+                                      match.home_country_short,
+                                      "green",
+                                      "black",
+                                      "none"
+                                    )
+                                  : "none",
+                                opacity: isAuthenticated
+                                  ? matchColor(
+                                      match.match_id.toString(),
+                                      match.home_country_short,
+                                      "1",
+                                      "0.5",
+                                      "1"
+                                    )
+                                  : "1",
+                              }}
+                            >
+                              {match.home_country_short}
+                            </Typography>
+                          </Stack>
+                        </Button>
+                        <Divider
+                          orientation="vertical"
+                          variant="middle"
+                          flexItem
+                          sx={{ marginRight: "8px", marginLeft: "8px" }}
+                        />
+                        <Button
+                          variant="text"
+                          sx={{
+                            padding: "0px !important",
+                            minWidth: "30px !important",
+                            Width: "30px",
+                            flexShrink: 0,
+                            flexGrow: 0,
+                          }}
+                          disabled={isButtonDiabled(match, "0")}
+                          onClick={() => vote(match.match_id, "0")}
+                        >
                           <Typography
                             fontSize="0.75rem"
                             fontWeight={900}
-                            mx="4px"
                             sx={{
-                              display: { xs: "none", sm: "block" },
                               color: isAuthenticated
                                 ? matchColor(
                                     match.match_id.toString(),
-                                    match.home_country_short,
+                                    "0",
                                     "green",
                                     "black",
                                     "none"
@@ -391,7 +460,7 @@ const Matches = () => {
                               opacity: isAuthenticated
                                 ? matchColor(
                                     match.match_id.toString(),
-                                    match.home_country_short,
+                                    "0",
                                     "1",
                                     "0.5",
                                     "1"
@@ -399,111 +468,41 @@ const Matches = () => {
                                 : "1",
                             }}
                           >
-                            {match.home_country_short}
+                            Draw
                           </Typography>
-                        </Stack>
-                      </Button>
-                      <Divider
-                        orientation="vertical"
-                        variant="middle"
-                        flexItem
-                        sx={{ marginRight: "8px", marginLeft: "8px" }}
-                      />
-                      <Button
-                        variant="text"
-                        sx={{
-                          padding: "0px !important",
-                          minWidth: "30px !important",
-                          Width: "30px",
-                          flexShrink: 0,
-                          flexGrow: 0,
-                        }}
-                        disabled={isButtonDiabled(match, "0")}
-                        onClick={() => vote(match.match_id, "0")}
-                      >
-                        <Typography
-                          fontSize="0.75rem"
-                          fontWeight={900}
+                        </Button>
+                        <Divider
+                          orientation="vertical"
+                          variant="middle"
+                          flexItem
+                          sx={{ marginRight: "8px", marginLeft: "8px" }}
+                        />
+                        <Button
                           sx={{
-                            color: isAuthenticated
-                              ? matchColor(
-                                  match.match_id.toString(),
-                                  "0",
-                                  "green",
-                                  "black",
-                                  "none"
-                                )
-                              : "none",
-                            opacity: isAuthenticated
-                              ? matchColor(
-                                  match.match_id.toString(),
-                                  "0",
-                                  "1",
-                                  "0.5",
-                                  "1"
-                                )
-                              : "1",
+                            padding: "0px",
+                            flexShrink: 0,
+                            minWidth: ["0"],
                           }}
+                          disabled={isButtonDiabled(
+                            match,
+                            match.away_country_short
+                          )}
+                          onClick={() =>
+                            vote(match.match_id, match.away_country_short)
+                          }
                         >
-                          Draw
-                        </Typography>
-                      </Button>
-                      <Divider
-                        orientation="vertical"
-                        variant="middle"
-                        flexItem
-                        sx={{ marginRight: "8px", marginLeft: "8px" }}
-                      />
-                      <Button
-                        sx={{ padding: "0px", flexShrink: 0, minWidth: ["0"] }}
-                        disabled={isButtonDiabled(
-                          match,
-                          match.away_country_short
-                        )}
-                        onClick={() =>
-                          vote(match.match_id, match.away_country_short)
-                        }
-                      >
-                        <Stack direction="row" alignItems="center">
-                          <img
-                            src={match.away_logo}
-                            className={styles.imageFlag}
-                            alt={match.away_country}
-                            style={{
-                              border: isAuthenticated
-                                ? matchColor(
-                                    match.match_id.toString(),
-                                    match.away_country_short,
-                                    "2px solid green",
-                                    "none",
-                                    "none"
-                                  )
-                                : "none",
-                              opacity: isAuthenticated
-                                ? matchColor(
-                                    match.match_id.toString(),
-                                    match.away_country_short,
-                                    "1",
-                                    "0.5",
-                                    "1"
-                                  )
-                                : "1",
-                            }}
-                          />
-                          <Typography
-                            fontSize="0.75rem"
-                            fontWeight={900}
-                            mx="4px"
-                            sx={{
-                              display: {
-                                xs: "none",
-                                sm: "block",
-                                color: isAuthenticated
+                          <Stack direction="row" alignItems="center">
+                            <img
+                              src={match.away_logo}
+                              className={styles.imageFlag}
+                              alt={match.away_country}
+                              style={{
+                                border: isAuthenticated
                                   ? matchColor(
                                       match.match_id.toString(),
                                       match.away_country_short,
-                                      "green",
-                                      "black",
+                                      "2px solid green",
+                                      "none",
                                       "none"
                                     )
                                   : "none",
@@ -516,30 +515,55 @@ const Matches = () => {
                                       "1"
                                     )
                                   : "1",
-                              },
-                            }}
-                          >
-                            {match.away_country_short}
-                          </Typography>
-                        </Stack>
-                      </Button>
+                              }}
+                            />
+                            <Typography
+                              fontSize="0.75rem"
+                              fontWeight={900}
+                              mx="4px"
+                              sx={{
+                                display: {
+                                  xs: "none",
+                                  sm: "block",
+                                  color: isAuthenticated
+                                    ? matchColor(
+                                        match.match_id.toString(),
+                                        match.away_country_short,
+                                        "green",
+                                        "black",
+                                        "none"
+                                      )
+                                    : "none",
+                                  opacity: isAuthenticated
+                                    ? matchColor(
+                                        match.match_id.toString(),
+                                        match.away_country_short,
+                                        "1",
+                                        "0.5",
+                                        "1"
+                                      )
+                                    : "1",
+                                },
+                              }}
+                            >
+                              {match.away_country_short}
+                            </Typography>
+                          </Stack>
+                        </Button>
+                      </Stack>
+                      <Typography fontSize="0.5rem" color="textSecondary">
+                        {utcToLocal(match.match_date)}
+                      </Typography>
                     </Stack>
-                    <Typography fontSize="0.5rem" color="textSecondary">
-                      {new Date(match.match_date).toLocaleString(
-                        "en-US",
-                        dateOptions
-                      )}
-                    </Typography>
+                    <img
+                      src={`/eurocaster_assets/avatars/${match.away_country_short}.png`}
+                      className={styles.imageAvatar}
+                      alt={match.away_country_short}
+                    />
                   </Stack>
-                  <img
-                    src={`/eurocaster_assets/avatars/${match.away_country_short}.png`}
-                    className={styles.imageAvatar}
-                    alt={match.away_country_short}
-                  />
-                </Stack>
-              </Box>
-            </>
-          ))}
+                </Box>
+              </>
+            ))}
     </Box>
   );
 };
