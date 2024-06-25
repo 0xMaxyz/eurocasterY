@@ -3,7 +3,7 @@ import logger from "../logger";
 
 async function saveUserData(
   userId: string,
-  username: string,
+  username: string | null,
   profilePicture: string | null
 ) {
   try {
@@ -61,7 +61,7 @@ export async function saveTwitterData(data: TwitterPayload) {
 
 export async function saveWalletData(data: WalletPayload) {
   const userId = data.userId;
-  const username = "";
+  const username = null;
   const profilePicture = null;
   const providerIdentifier = data.data.verifiedCredentials[0].address;
 

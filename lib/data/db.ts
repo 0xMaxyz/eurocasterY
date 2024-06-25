@@ -50,9 +50,9 @@ export const createTables = async function () {
     CREATE TABLE IF NOT EXISTS users (
     user_id UUID PRIMARY KEY,
     username VARCHAR UNIQUE,
-    profile_picture VARCHAR, -- Add this column to store the profile picture URL
+    profile_picture VARCHAR,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
-    );
+);
 `;
 
     // Create Login Providers Table
@@ -60,11 +60,11 @@ export const createTables = async function () {
     CREATE TABLE IF NOT EXISTS login_providers (
     provider_id SERIAL PRIMARY KEY,
     user_id UUID NOT NULL,
-    provider_name VARCHAR(50) NOT NULL, -- 'farcaster', 'twitter', 'wallet', etc.
-    provider_identifier VARCHAR(255) NOT NULL, -- e.g., fid, Twitter handle, wallet address
-    UNIQUE(provider_name, provider_identifier), -- Ensure no duplicate entries for the same provider and identifier
+    provider_name VARCHAR(50) NOT NULL,
+    provider_identifier VARCHAR(255) NOT NULL,
+    UNIQUE(provider_name, provider_identifier),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-    );
+);
 `;
 
     // Create Predictions Table
