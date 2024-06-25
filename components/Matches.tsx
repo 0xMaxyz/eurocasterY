@@ -25,6 +25,7 @@ interface snackbarState {
   hasError: boolean;
   error: string;
 }
+
 const Matches = () => {
   const { isAuthenticated, user } = useDynamicContext();
   const [matches, setMatches] = useState<MatchAndTeamInfo[]>([]);
@@ -67,9 +68,8 @@ const Matches = () => {
         // TODO: Handle the else case
       }
     };
-    if (isAuthenticated) {
+    if (isAuthenticated && user_id) {
       fetchVotes();
-    } else {
     }
   }, [isAuthenticated, updateVotes, user_id]);
 
@@ -95,15 +95,15 @@ const Matches = () => {
       body: req,
     });
     const data: predictResponseDto = await response.json();
-    // update votes
-    setupdateVotes(!updateVotes);
-    //
+    console.log("Vote Response: ", data);
+
     if (!data.has_error) {
       setopenSnackbar({
         open: true,
         hasError: false,
         error: "",
       });
+      setupdateVotes(!updateVotes);
     } else {
       setopenSnackbar({
         open: true,
@@ -201,19 +201,31 @@ const Matches = () => {
     </Box>
   );
 
-  const matchColor = function (
+  const matchColor = (
     match_id: string,
     vote: string,
-    foundResult: string = "found",
-    defaultResult: string = "notFound"
-  ): string {
+    foundResult: string,
+    notFoundResult: string,
+    defaultResult: string
+  ) => {
     const pr = votes?.find((pred) => pred.match_id.toString() === match_id);
-    return pr && pr.prediction === vote ? foundResult : defaultResult;
+    if (!pr) {
+      return defaultResult;
+    }
+    return pr.prediction === vote ? foundResult : notFoundResult;
   };
 
   const disableVote = function (match_id: string, vote: string) {
     const pr = votes?.find((pred) => pred.match_id.toString() === match_id);
-    return pr && pr.prediction === vote;
+    return (pr && pr.prediction === vote) || false;
+  };
+
+  const isButtonDiabled = function (match: MatchAndTeamInfo, vote: string) {
+    return (
+      !isAuthenticated ||
+      checkIfKickoffPassed(new Date(match.match_date)) ||
+      disableVote(match.match_id.toString(), vote)
+    );
   };
 
   return (
@@ -319,14 +331,10 @@ const Matches = () => {
                   >
                     <Button
                       sx={{ padding: "0px", flexShrink: 0, minWidth: ["0"] }}
-                      disabled={
-                        !isAuthenticated ||
-                        checkIfKickoffPassed(new Date(match.match_date)) ||
-                        disableVote(
-                          match.match_id.toString(),
-                          match.home_country_short
-                        )
-                      }
+                      disabled={isButtonDiabled(
+                        match,
+                        match.home_country_short
+                      )}
                       onClick={() =>
                         vote(match.match_id, match.home_country_short)
                       }
@@ -342,6 +350,7 @@ const Matches = () => {
                                   match.match_id.toString(),
                                   match.home_country_short,
                                   "2px solid green",
+                                  "none",
                                   "none"
                                 )
                               : "none",
@@ -350,9 +359,10 @@ const Matches = () => {
                                   match.match_id.toString(),
                                   match.home_country_short,
                                   "1",
-                                  "0.5"
+                                  "0.5",
+                                  "1"
                                 )
-                              : "0.5",
+                              : "1",
                           }}
                         />
                         <Typography
@@ -366,7 +376,8 @@ const Matches = () => {
                                   match.match_id.toString(),
                                   match.home_country_short,
                                   "green",
-                                  "black"
+                                  "black",
+                                  "none"
                                 )
                               : "none",
                             opacity: isAuthenticated
@@ -374,9 +385,10 @@ const Matches = () => {
                                   match.match_id.toString(),
                                   match.home_country_short,
                                   "1",
-                                  "0.5"
+                                  "0.5",
+                                  "1"
                                 )
-                              : "0.5",
+                              : "1",
                           }}
                         >
                           {match.home_country_short}
@@ -398,11 +410,7 @@ const Matches = () => {
                         flexShrink: 0,
                         flexGrow: 0,
                       }}
-                      disabled={
-                        !isAuthenticated ||
-                        checkIfKickoffPassed(new Date(match.match_date)) ||
-                        disableVote(match.match_id.toString(), "0")
-                      }
+                      disabled={isButtonDiabled(match, "0")}
                       onClick={() => vote(match.match_id, "0")}
                     >
                       <Typography
@@ -414,7 +422,8 @@ const Matches = () => {
                                 match.match_id.toString(),
                                 "0",
                                 "green",
-                                "black"
+                                "black",
+                                "none"
                               )
                             : "none",
                           opacity: isAuthenticated
@@ -422,9 +431,10 @@ const Matches = () => {
                                 match.match_id.toString(),
                                 "0",
                                 "1",
-                                "0.5"
+                                "0.5",
+                                "1"
                               )
-                            : "0.5",
+                            : "1",
                         }}
                       >
                         Draw
@@ -438,14 +448,10 @@ const Matches = () => {
                     />
                     <Button
                       sx={{ padding: "0px", flexShrink: 0, minWidth: ["0"] }}
-                      disabled={
-                        !isAuthenticated ||
-                        checkIfKickoffPassed(new Date(match.match_date)) ||
-                        disableVote(
-                          match.match_id.toString(),
-                          match.away_country_short
-                        )
-                      }
+                      disabled={isButtonDiabled(
+                        match,
+                        match.away_country_short
+                      )}
                       onClick={() =>
                         vote(match.match_id, match.away_country_short)
                       }
@@ -461,6 +467,7 @@ const Matches = () => {
                                   match.match_id.toString(),
                                   match.away_country_short,
                                   "2px solid green",
+                                  "none",
                                   "none"
                                 )
                               : "none",
@@ -469,9 +476,10 @@ const Matches = () => {
                                   match.match_id.toString(),
                                   match.away_country_short,
                                   "1",
-                                  "0.5"
+                                  "0.5",
+                                  "1"
                                 )
-                              : "0.5",
+                              : "1",
                           }}
                         />
                         <Typography
@@ -487,7 +495,8 @@ const Matches = () => {
                                     match.match_id.toString(),
                                     match.away_country_short,
                                     "green",
-                                    "black"
+                                    "black",
+                                    "none"
                                   )
                                 : "none",
                               opacity: isAuthenticated
@@ -495,9 +504,10 @@ const Matches = () => {
                                     match.match_id.toString(),
                                     match.away_country_short,
                                     "1",
-                                    "0.5"
+                                    "0.5",
+                                    "1"
                                   )
-                                : "0.5",
+                                : "1",
                             },
                           }}
                         >
