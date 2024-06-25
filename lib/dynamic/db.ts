@@ -24,11 +24,42 @@ async function saveProviderData(
   providerIdentifier: string
 ) {
   try {
+    if (providerName === "farcaster") {
+      try {
+        // Check if there is an existing entry for the same provider_name and provider_identifier
+        const existingEntry = await sql`
+          SELECT user_id FROM login_providers
+          WHERE provider_name = ${providerName} AND provider_identifier = ${providerIdentifier};
+        `;
+
+        if (existingEntry.rowCount > 0) {
+          // Update the user_id in the users table
+          await sql`
+            UPDATE users
+            SET user_id = ${userId}
+            WHERE user_id = ${existingEntry.rows[0].user_id}
+          `;
+          logger.info(`Db:: Updated User ID in Users Table, ${userId}`);
+          // If an entry exists, update the user_id
+          const resp = await sql`
+            UPDATE login_providers
+            SET user_id = ${userId}
+            WHERE provider_name = ${providerName} AND provider_identifier = ${providerIdentifier}
+          `;
+          logger.info(
+            `Db:: Updated Provider Data, ${userId}, ${providerName}, ${providerIdentifier}`
+          );
+        }
+      } catch (error) {
+        logger.error(`DB::Error::${error}`);
+      }
+    }
+
     const resp = await sql`
-        INSERT INTO login_providers (user_id, provider_name, provider_identifier)
-        VALUES (${userId}, ${providerName}, ${providerIdentifier})
-        ON CONFLICT (provider_name, provider_identifier) DO NOTHING
-      `;
+          INSERT INTO login_providers (user_id, provider_name, provider_identifier)
+          VALUES (${userId}, ${providerName}, ${providerIdentifier})
+          ON CONFLICT (provider_name, provider_identifier) DO NOTHING
+        `;
     logger.info(
       `Db:: New Provider, ${userId}, ${providerName}, ${providerIdentifier},`
     );
