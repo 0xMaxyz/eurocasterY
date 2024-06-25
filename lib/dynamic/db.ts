@@ -53,16 +53,6 @@ export async function saveFarcasterData(data: FarcasterPayload) {
   if (userIdInDb) {
     // update this user data
     try {
-      // Update the user_id in the login_providers table
-
-      const resp = await sql`
-            UPDATE login_providers
-            SET user_id = ${userId}
-            WHERE user_id = ${userIdInDb}
-          `;
-      logger.info(
-        `Db:: Updated Provider Data, ${userId}, ${providerIdentifier}`
-      );
       // Update the user_id in the users table
       await sql`
             UPDATE users

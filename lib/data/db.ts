@@ -64,7 +64,7 @@ export const createTables = async function () {
     provider_name VARCHAR(50) NOT NULL,
     provider_identifier VARCHAR(255) NOT NULL,
     UNIQUE(provider_name, provider_identifier),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 `;
 
@@ -77,7 +77,7 @@ export const createTables = async function () {
     prediction INT NOT NULL, -- 0 for draw, or team id for winner
     predicted_at TIMESTAMP NOT NULL DEFAULT NOW(),
     counted BOOLEAN DEFAULT false,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (match_id) REFERENCES matches(match_id) ON DELETE CASCADE
     );
 `;
@@ -90,7 +90,7 @@ export const createTables = async function () {
     points INT NOT NULL DEFAULT 0,
     award INT NOT NULL DEFAULT 0,
     UNIQUE (user_id),
-    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON UPDATE CASCADE ON DELETE CASCADE
     );
 `;
     logger.info("Db:: Tables created.");
