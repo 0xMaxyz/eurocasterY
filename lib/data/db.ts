@@ -9,6 +9,7 @@ import {
   predictDto,
   predictResponseDto,
 } from "./dtos";
+import { getFarcasterData } from "../functions";
 
 export const createTables = async function () {
   try {
@@ -568,13 +569,27 @@ export interface NewUser {
 
 async function createNewUser(fid: number): Promise<NewUser> {
   try {
+    // get farcaster data
+    let pfp: string = "";
+    let username: string = "";
+
+    try {
+      const farcasterData = await getFarcasterData(`"${fid}"`);
+      if (farcasterData && farcasterData.length > 0) {
+        pfp = farcasterData[0].profileImage;
+        username = farcasterData[0].profileName;
+      }
+    } catch {
+      // use default null values for user_name and pfp if any error happens
+    }
+
     // Generate a new UUID for the user
     const userId = uuidv4();
 
     // Insert into users table
     const userQuery = {
-      text: "INSERT INTO users(user_id, created_at) VALUES($1, NOW()) RETURNING *",
-      values: [userId],
+      text: "INSERT INTO users(user_id, created_at, username, profile_picture) VALUES($1, NOW(), $2, $3) RETURNING *",
+      values: [userId, username, pfp],
     };
 
     const userResult = await sql.query(userQuery);
