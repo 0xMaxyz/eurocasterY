@@ -144,7 +144,9 @@ const HomeClient = () => {
                   width: "100%",
                   height: "100%",
                   color: "#fff",
-                  zIndex: (theme) => theme.zIndex.drawer + 1,
+                  zIndex: !isAuthenticated
+                    ? (theme) => theme.zIndex.drawer + 1
+                    : -1,
                   backgroundColor: "rgba(255, 255, 255, 0.2)", // Semi-transparent background
                   backdropFilter: "blur(5px)",
                   boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
