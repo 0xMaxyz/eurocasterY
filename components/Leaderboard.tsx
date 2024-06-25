@@ -85,6 +85,19 @@ const Leaderboard = () => {
     return "inherit";
   };
 
+  function formatEthereumAddress(
+    provider_name: string,
+    provider_identifier: string
+  ): string {
+    if (provider_name === "wallet") {
+      const start = provider_identifier.slice(0, 4);
+      const end = provider_identifier.slice(-4);
+
+      return `${start}...${end}`;
+    }
+    return provider_identifier;
+  }
+
   return (
     <Box mb={3} mt={2}>
       {isAuthenticated && leaderboardData?.currentUser && (
@@ -269,7 +282,12 @@ const Leaderboard = () => {
                       ml={2}
                       sx={{ color: getRankColor(user.rank, "inherit") }}
                     >
-                      {user.username}
+                      {user.username
+                        ? user.username
+                        : formatEthereumAddress(
+                            user.provider_name,
+                            user.provider_identifier
+                          )}
                     </Typography>
                   </Grid>
                   <Grid item xs={2} container alignItems={"center"} pr={2}>

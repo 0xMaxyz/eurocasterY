@@ -145,16 +145,18 @@ export const getLeaderboardData = async function (
     // Get top 20 users by points
     const resp1 = await sql`
     WITH ranked_users AS (
-      SELECT u.user_id, u.username, u.profile_picture, l.points, l.award,
-      RANK() OVER (ORDER BY l.points DESC) AS rank
-      FROM users u
-      JOIN leaderboard l ON u.user_id = l.user_id
+    SELECT u.user_id, u.username, u.profile_picture, l.points, l.award,
+           RANK() OVER (ORDER BY l.points DESC) AS rank
+    FROM users u
+    JOIN leaderboard l ON u.user_id = l.user_id
     )
-    SELECT *
-    FROM ranked_users
-    ORDER BY award DESC 
+    SELECT ru.*, lp.provider_identifier, lp.provider_name
+    FROM ranked_users ru
+    JOIN login_providers lp ON ru.user_id = lp.user_id
+    ORDER BY ru.award DESC
     LIMIT 20;
     `;
+    // console.log(resp1.rows);
 
     let topUsers: LeaderboardData[] = [];
     let currentUser: LeaderboardData = {
@@ -164,12 +166,32 @@ export const getLeaderboardData = async function (
       points: 0,
       award: 0,
       rank: 0,
+      provider_identifier: "",
+      provider_name: "",
     };
 
     if (resp1.rowCount > 0) {
       topUsers = resp1.rows.map((u) => {
-        const { user_id, username, profile_picture, points, award, rank } = u;
-        return { user_id, username, profile_picture, points, award, rank };
+        const {
+          user_id,
+          username,
+          profile_picture,
+          points,
+          award,
+          rank,
+          provider_name,
+          provider_identifier,
+        } = u;
+        return {
+          user_id,
+          username,
+          profile_picture,
+          points,
+          award,
+          rank,
+          provider_name,
+          provider_identifier,
+        };
       });
     }
 
@@ -196,10 +218,12 @@ export const getLeaderboardData = async function (
           points,
           award,
           rank,
+          provider_identifier: "",
+          provider_name: "",
         };
       }
     }
-
+    //console.log("topUsers:", topUsers, "currentUser:", currentUser);
     return { topUsers: topUsers, currentUser: currentUser };
   } catch (error) {
     console.error(`Db:: Error reading leaderboard, ${error}`);

@@ -54,4 +54,6 @@ export interface LeaderboardData {
   points: number;
   award: number;
   rank: number;
+  provider_name: string;
+  provider_identifier: string;
 }
