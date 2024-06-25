@@ -19,7 +19,7 @@ export const POST = async function (request: NextRequest) {
     });
   }
   // extract required fields
-  const body = await request.json();
+  const body = JSON.parse(bodyText);
   const { messageId } = body;
 
   // check for duplicate message id
