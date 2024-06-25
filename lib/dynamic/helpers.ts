@@ -2,7 +2,7 @@ import logger from "../logger";
 
 export function parsePayload(
   body: any
-): FarcasterPayload | TwitterPayload | WalletPayload | SmartWalletPayload {
+): FarcasterPayload | TwitterPayload | WalletPayload {
   if (body.data.verifiedCredentials[0].oauthProvider === "farcaster") {
     logger.info("Found Farcaster Payload");
     return body as FarcasterPayload;
@@ -12,22 +12,12 @@ export function parsePayload(
 
     return body as TwitterPayload;
   }
-  if (
-    body.data.verifiedCredentials[0].format === "blockchain" &&
-    body.data.verifiedCredentials[0].walletProvider === "browserExtension"
-  ) {
+  if (body.data.verifiedCredentials[0].format === "blockchain") {
     logger.info("Found Wallet Payload");
 
     return body as WalletPayload;
   }
-  if (
-    body.data.verifiedCredentials[0].format === "blockchain" &&
-    body.data.verifiedCredentials[0].walletProvider === "custodialService"
-  ) {
-    logger.info("Found Smart Wallet Payload");
 
-    return body as SmartWalletPayload;
-  }
   logger.error("No known payload found");
 
   throw new Error("Unknown payload type");

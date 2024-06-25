@@ -29,7 +29,7 @@ export const POST = async function (request: NextRequest) {
     // extract required fields
     const body = JSON.parse(bodyText);
     const payload = parsePayload(body);
-    logger.info(`Payload: ${payload}`);
+    logger.info(`Payload: ${JSON.stringify(payload)}`);
     const { messageId } = body;
 
     // check for duplicate message id
@@ -45,27 +45,19 @@ export const POST = async function (request: NextRequest) {
     // Process the event based on its type
     if ("oauthProvider" in payload.data.verifiedCredentials[0]) {
       if (payload.data.verifiedCredentials[0].oauthProvider === "farcaster") {
+        logger.info("Farcaster Account found");
+
         await saveFarcasterData(payload as FarcasterPayload);
       } else if (
         payload.data.verifiedCredentials[0].oauthProvider === "twitter"
       ) {
+        logger.info("Twitter Account found");
         await saveTwitterData(payload as TwitterPayload);
       }
     } else if ("walletProvider" in payload.data.verifiedCredentials[0]) {
-      if (
-        payload.data.verifiedCredentials[0].walletProvider ===
-        "browserExtension"
-      ) {
-        await saveWalletData(payload as WalletPayload);
-      } else if (
-        payload.data.verifiedCredentials[0].walletProvider ===
-        "custodialService"
-      ) {
-        await saveSmartWalletData(payload as SmartWalletPayload);
-      }
+      logger.info("wallet Account found");
+      await saveWalletData(payload as WalletPayload);
     }
-
-    logger.info(`Webhook:: Created a new user`);
 
     await saveNewEvent(messageId);
 

@@ -71,8 +71,6 @@ type WalletVerifiedCredential = {
   walletProvider: string;
 };
 
-type SmartWalletVerifiedCredential = WalletVerifiedCredential;
-
 type WebhookPayload<T> = {
   eventId: string;
   webhookId: string;
@@ -100,4 +98,3 @@ type WebhookPayload<T> = {
 type FarcasterPayload = WebhookPayload<FarcasterVerifiedCredential>;
 type TwitterPayload = WebhookPayload<TwitterVerifiedCredential>;
 type WalletPayload = WebhookPayload<WalletVerifiedCredential>;
-type SmartWalletPayload = WebhookPayload<SmartWalletVerifiedCredential>;
