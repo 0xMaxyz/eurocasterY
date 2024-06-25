@@ -1,6 +1,5 @@
 import { HEADERS } from "@/lib/consts";
 import { getLeaderboardData } from "@/lib/data/db";
-import { getFarcasterData, joinLeaderboardData } from "@/lib/functions";
 import logger from "@/lib/logger";
 import { NextRequest } from "next/server";
 
