@@ -166,7 +166,7 @@ app.frame("/predict", async (c) => {
             }}
           >
             <img
-              src={`/eurocaster_assets/bgn/1.png`}
+              src={`/eurocaster_assets/pbg.png`}
               alt="Background"
               style={{
                 position: "absolute",
