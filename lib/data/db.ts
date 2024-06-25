@@ -11,40 +11,28 @@ import {
 
 export const createTables = async function () {
   try {
-    // Create Enum Type for Match Status
-    //     await sql`
-    // CREATE TYPE status AS ENUM ('upcoming', 'finished');
-    // `;
-    // Create Groups Table
-    //     await sql`
-    // CREATE TABLE IF NOT EXISTS groups (
-    //     group_id SERIAL PRIMARY KEY,
-    //     group_name VARCHAR(1) NOT NULL UNIQUE
-    // );
-    // `;
-    // Create processed events
     await sql`
-CREATE TABLE processed_events (
+  CREATE TABLE processed_events (
   id SERIAL PRIMARY KEY,
   message_id VARCHAR(255) UNIQUE NOT NULL,
   processed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+  );
 `;
 
     // Create Teams Table
     await sql`
-CREATE TABLE IF NOT EXISTS teams (
+    CREATE TABLE IF NOT EXISTS teams (
     team_id SERIAL PRIMARY KEY,
     uefa_id INT NOT NULL,
     country VARCHAR NOT NULL UNIQUE,
     country_short VARCHAR(3) NOT NULL UNIQUE,
     logo VARCHAR
-);
+    );
 `;
 
     // Create Matches Table
     await sql`
-CREATE TABLE IF NOT EXISTS matches (
+    CREATE TABLE IF NOT EXISTS matches (
     match_id SERIAL PRIMARY KEY,
     awayTeam_id INT NOT NULL,
     homeTeam_id INT NOT NULL,
@@ -54,63 +42,55 @@ CREATE TABLE IF NOT EXISTS matches (
     matchNumber INT NOT NULL UNIQUE,
     FOREIGN KEY (awayTeam_id) REFERENCES teams(team_id) ON DELETE CASCADE,
     FOREIGN KEY (homeTeam_id) REFERENCES teams(team_id) ON DELETE CASCADE
-);
+    );
 `;
 
     // Create Users Table
     await sql`
-CREATE TABLE IF NOT EXISTS users (
-    user_id SERIAL PRIMARY KEY,
-    username VARCHAR NOT NULL UNIQUE,
-    fid INT NOT NULL UNIQUE,
-    email VARCHAR NOT NULL UNIQUE,
-    password VARCHAR NOT NULL,
-    points INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    x VARCHAR UNIQUE
-);
+    CREATE TABLE IF NOT EXISTS users (
+    user_id UUID PRIMARY KEY,
+    username VARCHAR UNIQUE,
+    profile_picture VARCHAR, -- Add this column to store the profile picture URL
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    );
 `;
 
-    // Create Wallets Table
+    // Create Login Providers Table
     await sql`
-CREATE TABLE IF NOT EXISTS wallets (
-    wallet_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
-);
+    CREATE TABLE IF NOT EXISTS login_providers (
+    provider_id SERIAL PRIMARY KEY,
+    user_id UUID NOT NULL,
+    provider_name VARCHAR(50) NOT NULL, -- 'farcaster', 'twitter', 'wallet', etc.
+    provider_identifier VARCHAR(255) NOT NULL, -- e.g., fid, Twitter handle, wallet address
+    UNIQUE(provider_name, provider_identifier), -- Ensure no duplicate entries for the same provider and identifier
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    );
 `;
+
     // Create Predictions Table
     await sql`
-CREATE TABLE IF NOT EXISTS predictions (
+    CREATE TABLE IF NOT EXISTS predictions (
     prediction_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id UUID NOT NULL,
     match_id INT NOT NULL,
     prediction INT NOT NULL, -- 0 for draw, or team id for winner
     predicted_at TIMESTAMP NOT NULL DEFAULT NOW(),
     counted BOOLEAN DEFAULT false,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (match_id) REFERENCES matches(match_id) ON DELETE CASCADE
-);
-
+    );
 `;
 
     // Create Leaderboard Table
     await sql`
-CREATE TABLE IF NOT EXISTS public.leaderboard
-(
-    id integer NOT NULL DEFAULT nextval('leaderboard_id_seq'::regclass),
-    user_id integer NOT NULL,
-    points integer NOT NULL DEFAULT 0,
-    award integer NOT NULL DEFAULT 0,
-    CONSTRAINT leaderboard_pkey PRIMARY KEY (id),
-    CONSTRAINT unique_user_id UNIQUE (user_id),
-    CONSTRAINT leaderboard_user_id_fkey FOREIGN KEY (user_id)
-        REFERENCES public.users (user_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-);
-
+    CREATE TABLE IF NOT EXISTS leaderboard (
+    id SERIAL PRIMARY KEY, 
+    user_id UUID NOT NULL, 
+    points INT NOT NULL DEFAULT 0,
+    award INT NOT NULL DEFAULT 0,
+    UNIQUE (user_id),
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
+    );
 `;
     logger.info("Db:: Tables created.");
   } catch (error) {
@@ -255,6 +235,16 @@ export const isEventProcessed = async function (message_id: string) {
     return resp.rowCount != 0;
   } catch (error) {
     throw new Error(`Error reading from database, ${error}`);
+  }
+};
+
+export const saveNewEvent = async function (message_id: string) {
+  try {
+    const resp = await sql`
+      INSERT INTO processed_events (message_id) VALUES (${message_id}) 
+  `;
+  } catch (error) {
+    throw new Error(`Error saving user create message id`);
   }
 };
 
