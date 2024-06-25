@@ -59,8 +59,7 @@ export const POST = async function (request: NextRequest) {
         await saveWalletData(payload as WalletPayload);
       } else if (
         payload.data.verifiedCredentials[0].walletProvider ===
-          "custodialService" &&
-        payload.data.verifiedCredentials[0].walletName === "coinbase"
+        "custodialService"
       ) {
         await saveSmartWalletData(payload as SmartWalletPayload);
       }

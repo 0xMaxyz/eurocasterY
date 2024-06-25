@@ -1,4 +1,5 @@
 import { sql } from "@vercel/postgres";
+import logger from "../logger";
 
 async function saveUserData(
   userId: string,
@@ -11,6 +12,7 @@ async function saveUserData(
         VALUES (${userId}, ${username}, ${profilePicture})
         ON CONFLICT (user_id) DO NOTHING
       `;
+    logger.info(`Db:: New user, ${userId}, ${username}, ${profilePicture},`);
   } catch (error) {}
 }
 
@@ -25,6 +27,9 @@ async function saveProviderData(
         VALUES (${userId}, ${providerName}, ${providerIdentifier})
         ON CONFLICT (provider_name, provider_identifier) DO NOTHING
       `;
+    logger.info(
+      `Db:: New Provider, ${userId}, ${providerName}, ${providerIdentifier},`
+    );
   } catch (error) {}
 }
 
