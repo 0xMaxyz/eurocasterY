@@ -5,14 +5,16 @@ import XIcon from "@mui/icons-material/X";
 const TwitterButton = () => {
   return (
     <Fab
-      href="https://x.com/ofc_the_club"
-      size="small"
+      target="_blank"
+      href="https://x.com/intent/follow?screen_name=ofc_the_club"
+      size="medium"
       variant="extended"
       sx={{
         padding: "20px",
+        minHeight: "40px",
         backgroundColor: "black",
         color: "white",
-        opacity: "0.6",
+        opacity: "1",
         position: "fixed",
         bottom: "2rem",
         left: "50%",
@@ -21,7 +23,7 @@ const TwitterButton = () => {
         "&:hover": {
           backgroundColor: "black",
           color: "white",
-          opacity: "1",
+          opacity: "0.6",
         },
         textTransform: "none",
       }}
