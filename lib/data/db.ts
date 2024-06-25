@@ -521,7 +521,7 @@ export const updateLeaderboard = async function () {
   }
 };
 
-async function getUserByProvider(
+export async function getUserByProvider(
   providerName: string,
   providerIdentifier: string
 ): Promise<string | null> {

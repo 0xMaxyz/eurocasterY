@@ -1,5 +1,6 @@
 import { sql } from "@vercel/postgres";
 import logger from "../logger";
+import { getUserByProvider } from "../data/db";
 
 async function saveUserData(
   userId: string,
@@ -24,37 +25,6 @@ async function saveProviderData(
   providerIdentifier: string
 ) {
   try {
-    if (providerName === "farcaster") {
-      try {
-        // Check if there is an existing entry for the same provider_name and provider_identifier
-        const existingEntry = await sql`
-          SELECT user_id FROM login_providers
-          WHERE provider_name = ${providerName} AND provider_identifier = ${providerIdentifier};
-        `;
-
-        if (existingEntry.rowCount > 0) {
-          // Update the user_id in the users table
-          await sql`
-            UPDATE users
-            SET user_id = ${userId}
-            WHERE user_id = ${existingEntry.rows[0].user_id}
-          `;
-          logger.info(`Db:: Updated User ID in Users Table, ${userId}`);
-          // If an entry exists, update the user_id
-          const resp = await sql`
-            UPDATE login_providers
-            SET user_id = ${userId}
-            WHERE provider_name = ${providerName} AND provider_identifier = ${providerIdentifier}
-          `;
-          logger.info(
-            `Db:: Updated Provider Data, ${userId}, ${providerName}, ${providerIdentifier}`
-          );
-        }
-      } catch (error) {
-        logger.error(`DB::Error::${error}`);
-      }
-    }
-
     const resp = await sql`
           INSERT INTO login_providers (user_id, provider_name, provider_identifier)
           VALUES (${userId}, ${providerName}, ${providerIdentifier})
@@ -75,8 +45,38 @@ export async function saveFarcasterData(data: FarcasterPayload) {
     data.data.verifiedCredentials[0].oauthAccountPhotos[0] || null;
   const providerIdentifier = data.data.verifiedCredentials[0].fid;
 
-  await saveUserData(userId, username, profilePicture);
-  await saveProviderData(userId, "farcaster", providerIdentifier.toString());
+  // check if user with this fid is on database
+  const userIdInDb = await getUserByProvider(
+    "farcaster",
+    providerIdentifier.toString()
+  );
+  if (userIdInDb) {
+    // update this user data
+    try {
+      // Update the user_id in the users table
+      await sql`
+            UPDATE users
+            SET user_id = ${userId}
+            WHERE user_id = ${userIdInDb}
+          `;
+      logger.info(`Db:: Updated User ID in Users Table, ${userId}`);
+      // Update the user_id in the login_providers table
+
+      const resp = await sql`
+            UPDATE login_providers
+            SET user_id = ${userId}
+            WHERE user_id = ${userIdInDb}
+          `;
+      logger.info(
+        `Db:: Updated Provider Data, ${userId}, ${providerIdentifier}`
+      );
+    } catch (error) {
+      logger.error(`DB::Error::${error}`);
+    }
+  } else {
+    await saveUserData(userId, username, profilePicture);
+    await saveProviderData(userId, "farcaster", providerIdentifier.toString());
+  }
 }
 
 export async function saveTwitterData(data: TwitterPayload) {
