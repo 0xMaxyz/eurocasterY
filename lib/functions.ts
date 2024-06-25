@@ -53,30 +53,6 @@ export const getFarcasterData = async function (_fids: string) {
   }
 };
 
-export const joinLeaderboardData = function (
-  farcasterData: FarcasterData[],
-  leaderboardDataWithRanks: LeaderboardDataWithRanks
-): LeaderboardDataWithRanks {
-  const addProfileInfo = (user: LeaderboardData) => {
-    const profile = farcasterData.find(
-      (profile) => profile.userId === String(user.fid)
-    );
-    if (profile) {
-      return {
-        ...user,
-        name: profile.profileName,
-        image: profile.profileImage,
-      };
-    }
-    return user;
-  };
-
-  return {
-    topUsers: leaderboardDataWithRanks.topUsers.map(addProfileInfo),
-    currentUser: addProfileInfo(leaderboardDataWithRanks.currentUser),
-  };
-};
-
 export const getUniqueObjectsInArray = function <T>(arr: T[]) {
   const uniqueMap = new Map<string, T>();
 
