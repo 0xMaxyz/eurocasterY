@@ -9,6 +9,7 @@ import {
   saveTwitterData,
   saveWalletData,
 } from "@/lib/dynamic/db";
+import { parsePayload } from "@/lib/dynamic/helpers";
 
 const webhooks = new Webhooks({
   secret: process.env.DYNAMICS_SECRET as string,
@@ -28,6 +29,7 @@ export const POST = async function (request: NextRequest) {
     // extract required fields
     const body = JSON.parse(bodyText);
     const payload = parsePayload(body);
+    logger.info(`Payload: ${payload}`);
     const { messageId } = body;
 
     // check for duplicate message id
