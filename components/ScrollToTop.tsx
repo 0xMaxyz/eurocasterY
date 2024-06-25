@@ -1,4 +1,3 @@
-// components/ScrollToTop.js
 import React, { useState, useEffect } from "react";
 import { Fab } from "@mui/material";
 

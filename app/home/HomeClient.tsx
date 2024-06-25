@@ -17,6 +17,7 @@ import { DynamicWidget, useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import LoginWrapper from "./DynamicWidgetWrapper";
 import ScrollToTop from "@/components/ScrollToTop";
 import { useRouter, useSearchParams } from "next/navigation";
+import TwitterButton from "@/components/Twitter";
 const theme = createTheme({
   palette: {
     mode: "light",
@@ -54,8 +55,9 @@ const HomeClient = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="lg" style={{ padding: "0px" }}>
+      <Container maxWidth="lg" style={{ padding: "0px", marginBottom: "4rem" }}>
         <ScrollToTop />
+        <TwitterButton />
         <Box
           display="flex"
           justifyContent="space-between"
