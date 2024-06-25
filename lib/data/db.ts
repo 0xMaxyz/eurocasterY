@@ -161,9 +161,9 @@ export const getLeaderboardData = async function (
       user_id: "",
       username: "",
       profile_picture: "",
-      points: -1,
-      award: -1,
-      rank: -1,
+      points: 0,
+      award: 0,
+      rank: 0,
     };
 
     if (resp1.rowCount > 0) {
