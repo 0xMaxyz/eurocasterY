@@ -53,13 +53,6 @@ export async function saveFarcasterData(data: FarcasterPayload) {
   if (userIdInDb) {
     // update this user data
     try {
-      // Update the user_id in the users table
-      await sql`
-            UPDATE users
-            SET user_id = ${userId}
-            WHERE user_id = ${userIdInDb}
-          `;
-      logger.info(`Db:: Updated User ID in Users Table, ${userId}`);
       // Update the user_id in the login_providers table
 
       const resp = await sql`
@@ -70,6 +63,13 @@ export async function saveFarcasterData(data: FarcasterPayload) {
       logger.info(
         `Db:: Updated Provider Data, ${userId}, ${providerIdentifier}`
       );
+      // Update the user_id in the users table
+      await sql`
+            UPDATE users
+            SET user_id = ${userId}
+            WHERE user_id = ${userIdInDb}
+          `;
+      logger.info(`Db:: Updated User ID in Users Table, ${userId}`);
     } catch (error) {
       logger.error(`DB::Error::${error}`);
     }
