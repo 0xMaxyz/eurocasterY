@@ -252,9 +252,9 @@ export const isEventProcessed = async function (message_id: string) {
     const resp = await sql`
   SELECT message_id FROM processed_events WHERE message_id = ${message_id}
   `;
-    return resp.rowCount == 0;
+    return resp.rowCount != 0;
   } catch (error) {
-    return false;
+    throw new Error(`Error reading from database, ${error}`);
   }
 };
 
