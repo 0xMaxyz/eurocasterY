@@ -1,3 +1,23 @@
 {
-  "outputDirectory": "eurocaster_next"
+  "outputDirectory": "eurocaster_next",
+  "crons": [
+    {
+      "path": "/api/conf/fetchdata",
+      "schedule": "0,30 12-23 * 6,7 *"
+    },
+    {
+      "path": "/api/conf/calculatepoints",
+      "schedule": "15,45 12-23 * 6,7 *"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/frame/*",
+      "headers": {
+        "Access-Control-Allow-Origin": "https://club.onefootball.com",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
+      }
+    }
+  ]
 }
