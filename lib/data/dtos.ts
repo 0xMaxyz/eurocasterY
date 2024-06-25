@@ -21,10 +21,9 @@ export interface createTeamDTO {
 }
 
 export interface predictDto {
-  fid: number;
+  user_id: string;
   match_id: string;
   prediction: number | string;
-  x: string;
 }
 
 export interface predictResponseDto {
@@ -49,9 +48,10 @@ export interface MatchAndTeamInfo {
 }
 
 export interface LeaderboardData {
-  fid: number;
+  user_id: string;
+  username: string;
+  profile_picture: string;
   points: number;
   award: number;
   rank: number;
-  x: string;
 }

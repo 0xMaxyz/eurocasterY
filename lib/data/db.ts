@@ -98,23 +98,6 @@ export const createTables = async function () {
   }
 };
 
-// export const addGroups = async function () {
-//   try {
-//     const resp = await sql`
-//     INSERT INTO groups (group_name) VALUES
-//     ('A'),
-//     ('B'),
-//     ('C'),
-//     ('D'),
-//     ('E'),
-//     ('F');
-//     `;
-//     logger.info(`Db:: Groups are added.`);
-//   } catch (error) {
-//     logger.error(`Db:: Can't add groups, ${error}`);
-//   }
-// };
-
 export const addMatch = async function (
   dto: createMatchDto
 ): Promise<number | null> {
@@ -155,74 +138,70 @@ export interface LeaderboardDataWithRanks {
 }
 
 export const getLeaderboardData = async function (
-  fid: number | null,
-  x: string
+  user_id: string | null
 ): Promise<LeaderboardDataWithRanks | null> {
   try {
+    // Get top 20 users by points
     const resp1 = await sql`
     WITH ranked_users AS (
-    SELECT u.fid, u.x, l.points, l.award,
-    RANK() OVER (ORDER BY l.points DESC) AS rank
-    FROM users u
-    JOIN leaderboard l ON u.user_id = l.user_id
+      SELECT u.user_id, u.username, u.profile_picture, l.points, l.award,
+      RANK() OVER (ORDER BY l.points DESC) AS rank
+      FROM users u
+      JOIN leaderboard l ON u.user_id = l.user_id
     )
     SELECT *
     FROM ranked_users
     ORDER BY award DESC 
     LIMIT 20;
     `;
+
     let topUsers: LeaderboardData[] = [];
     let currentUser: LeaderboardData = {
-      fid: -1,
+      user_id: "",
+      username: "",
+      profile_picture: "",
       points: -1,
       award: -1,
       rank: -1,
-      x: "",
     };
+
     if (resp1.rowCount > 0) {
       topUsers = resp1.rows.map((u) => {
-        const { fid, points, award, rank, x } = u;
-        return { fid, points, award, rank, x };
+        const { user_id, username, profile_picture, points, award, rank } = u;
+        return { user_id, username, profile_picture, points, award, rank };
       });
     }
-    if (fid) {
+
+    if (user_id) {
       const resp2 = await sql`
       WITH ranked_users AS (
-      SELECT u.user_id, u.fid, u.x, l.points, l.award,
-      RANK() OVER (ORDER BY l.points DESC) AS rank
-      FROM users u
-      JOIN leaderboard l ON u.user_id = l.user_id
+        SELECT u.user_id, u.username, u.profile_picture, l.points, l.award,
+        RANK() OVER (ORDER BY l.points DESC) AS rank
+        FROM users u
+        JOIN leaderboard l ON u.user_id = l.user_id
       )
       SELECT *
       FROM ranked_users
-      WHERE user_id = (SELECT user_id FROM users WHERE fid = ${fid})
+      WHERE user_id = ${user_id}
       `;
 
       if (resp2.rowCount > 0) {
-        const { fid, points, award, rank, x } = resp2.rows[0];
-        currentUser = { fid, points, award, rank, x };
-      }
-    } else if (x) {
-      const resp2 = await sql`
-      WITH ranked_users AS (
-      SELECT u.user_id, u.fid, u.x, l.points, l.award,
-      RANK() OVER (ORDER BY l.points DESC) AS rank
-      FROM users u
-      JOIN leaderboard l ON u.user_id = l.user_id
-      )
-      SELECT *
-      FROM ranked_users
-      WHERE user_id = (SELECT user_id FROM users WHERE x = ${x})
-      `;
-
-      if (resp2.rowCount > 0) {
-        const { fid, points, award, rank, x } = resp2.rows[0];
-        currentUser = { fid, points, award, rank, x };
+        const { user_id, username, profile_picture, points, award, rank } =
+          resp2.rows[0];
+        currentUser = {
+          user_id,
+          username,
+          profile_picture,
+          points,
+          award,
+          rank,
+        };
       }
     }
+
     return { topUsers: topUsers, currentUser: currentUser };
   } catch (error) {
-    logger.error(`Db:: Error reading leaderboard, ${error}`);
+    console.error(`Db:: Error reading leaderboard, ${error}`);
     return null;
   }
 };
@@ -295,24 +274,20 @@ export interface userVoteDto {
 }
 
 export const getUserVotes = async function (
-  fid: number,
-  x: string
+  user_id: string
 ): Promise<userVoteDto[]> {
   try {
     const query = `
     SELECT p.match_id, COALESCE(t.country_short, '0') as prediction
     FROM predictions p
     LEFT JOIN teams t ON p.prediction = t.team_id
-    WHERE p.user_id = (SELECT user_id FROM users WHERE ${
-      fid === 0 ? "x" : "fid"
-    } = $1);
+    WHERE p.user_id = $1;
     `;
 
     console.log(query);
-    const value = fid === 0 ? x : fid;
-    console.log("value", value);
+    console.log("value", user_id);
 
-    const resp = await sql.query(query, [value]);
+    const resp = await sql.query(query, [user_id]);
 
     if (resp.rowCount > 0) {
       console.log("votes found");
@@ -327,7 +302,7 @@ export const getUserVotes = async function (
       return [];
     }
   } catch (error) {
-    logger.error(`Db:: No votes found for user with fid/x of ${fid}/${x}`);
+    console.error(`Db:: No votes found for user with user_id of ${user_id}`);
     return [];
   }
 };
@@ -442,38 +417,7 @@ export const predict = async function (
   dto: predictDto
 ): Promise<predictResponseDto> {
   try {
-    // Step 0: Get the user_id from the fid/x, or create a new user if not found
-    const columnName = dto.fid === 0 ? "x" : "fid";
-    const value = dto.fid === 0 ? dto.x : dto.fid;
-
-    const query = `SELECT user_id FROM users WHERE ${columnName} = $1`;
-
-    let userResult = await sql.query(query, [value]);
-    let user_id;
-
-    if (userResult.rows.length === 0) {
-      console.log("User not found", dto);
-      const createNewUserQuery = `
-        INSERT INTO users (username, email, password, fid, x)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING user_id
-      `;
-      const fid = dto.fid === 0 ? await negFid() : dto.fid; // if fid=0, then get the next negative number from the database, otherwise use the fid
-      const values = [
-        dto.fid === 0 ? dto.x : dto.fid, // use x handle when account is created with X, otherwise use FID
-        dto.fid === 0 ? dto.x : dto.fid, // use x handle when account is created with X, otherwise use FID
-        dto.fid === 0 ? dto.x : dto.fid, // use x handle when account is created with X, otherwise use FID
-        fid,
-        dto.x,
-      ];
-      const newUserResult = await sql.query(createNewUserQuery, values);
-
-      user_id = newUserResult.rows[0].user_id;
-      logger.info(`Db:: New user created, id: ${user_id}`);
-    } else {
-      console.log("user found");
-      user_id = userResult.rows[0].user_id;
-    }
+    const user_id = dto.user_id;
 
     // Step 1: Check if the current time is less than the match date
     const matchResult = await sql`

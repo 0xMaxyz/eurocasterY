@@ -37,9 +37,7 @@ const Matches = () => {
   });
   const [voteSnackbar, setvoteSnackbar] = useState(false);
   const [updateVotes, setupdateVotes] = useState(false);
-  const [provider, setProvider] = useState<AuthProvider>(null);
-  const [fid, setFid] = useState<number>(0);
-  const [X, setX] = useState<string>("");
+  const [user_id, setUser_id] = useState<string | null>("");
 
   useEffect(() => {
     const fetchMatches = async () => {
@@ -55,64 +53,28 @@ const Matches = () => {
   }, []);
 
   useEffect(() => {
-    const p = getProvider();
-    setProvider(p);
-    if (p === "twitter") {
-      console.log("twitter auth", "getX()", getX());
-      setX(getX());
-      setFid(0);
-    } else if (p === "farcaster") {
-      setX("");
-      setFid(getFID());
-    } else {
-      setX("");
-      setFid(0);
-    }
+    setUser_id(getUserId());
   }, [isAuthenticated]);
 
   useEffect(() => {
     const fetchVotes = async () => {
-      const fid = getFID();
-      const x = getX();
-      console.log("before api", "fid", fid, "x", x);
-      if (fid !== null || x !== null) {
-        const response = await fetch(`/api/conf/votes?fid=${fid}&x=${x}`);
-        if (response.ok) {
-          const data = await response.json();
-          console.log("votes received", data);
-          setVotes(data);
-        } else {
-          // TODO: Handle the else case
-        }
+      const response = await fetch(`/api/conf/votes?user_id=${user_id}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log("votes received", data);
+        setVotes(data);
       } else {
+        // TODO: Handle the else case
       }
     };
     if (isAuthenticated) {
       fetchVotes();
     } else {
     }
-  }, [isAuthenticated, updateVotes]);
+  }, [isAuthenticated, updateVotes, user_id]);
 
-  const getX = () => {
-    return isAuthenticated && getProvider() === "twitter"
-      ? user?.verifiedCredentials[0].oauthUsername!
-      : "";
-  };
-
-  const getFID = () => {
-    return isAuthenticated && getProvider() === "farcaster"
-      ? Number.parseInt(user?.verifiedCredentials[0].oauthAccountId!)
-      : 0;
-  };
-
-  const getProvider = function (): AuthProvider {
-    if (isAuthenticated && user && user?.verifiedCredentials.length > 0) {
-      const provider = user.verifiedCredentials[0].oauthProvider;
-      if (provider === "twitter" || provider === "farcaster") {
-        return provider;
-      }
-    }
-    return null;
+  const getUserId = () => {
+    return isAuthenticated && user ? user.userId! : null;
   };
 
   const vote = async function (
@@ -121,12 +83,17 @@ const Matches = () => {
   ) {
     setvoteSnackbar(true);
     const req = JSON.stringify({
-      fid: fid,
+      user_id: user_id,
       match_id: match_id.toString(),
       prediction: short_country.toString(),
-      x: X,
     });
-    const response = await fetch(`/api/conf/predict?${req}`);
+    const response = await fetch(`/api/conf/predict`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: req,
+    });
     const data: predictResponseDto = await response.json();
     // update votes
     setupdateVotes(!updateVotes);

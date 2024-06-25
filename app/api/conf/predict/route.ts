@@ -7,10 +7,8 @@ import logger from "@/lib/logger";
 
 dotenv.config();
 
-export const GET = async function (request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const jsonString = Array.from(searchParams.keys())[0];
-  const pr: predictDto = JSON.parse(jsonString);
+export const POST = async function (request: NextRequest) {
+  const pr: predictDto = await request.json();
   if (pr) {
     try {
       logger.info("Input Predict", pr);
@@ -21,6 +19,7 @@ export const GET = async function (request: NextRequest) {
         headers: HEADERS,
       });
     } catch (error) {
+      logger.error("Error in Predict", error);
       return new Response(JSON.stringify(error), {
         status: 500,
         headers: HEADERS,

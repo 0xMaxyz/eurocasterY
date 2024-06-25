@@ -32,36 +32,18 @@ interface Leaderboard {
 }
 
 const Leaderboard = () => {
-  const [provider, setProvider] = useState<AuthProvider>(null);
-  const [fid, setFid] = useState<number>(0);
-  const [X, setX] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
   const { isAuthenticated, user } = useDynamicContext();
-  const [leaderboardData, setleaderboardData] = useState<Leaderboard | null>();
-  const getX = () => {
-    return isAuthenticated && getProvider() === "twitter"
-      ? user?.verifiedCredentials[0].oauthUsername!
-      : "";
-  };
-  const getFID = () => {
-    return isAuthenticated && getProvider() === "farcaster"
-      ? Number.parseInt(user?.verifiedCredentials[0].oauthAccountId!)
-      : 0;
-  };
-
-  const getProvider = function (): AuthProvider {
-    if (isAuthenticated && user && user?.verifiedCredentials.length > 0) {
-      const provider = user.verifiedCredentials[0].oauthProvider;
-      if (provider === "twitter" || provider === "farcaster") {
-        return provider;
-      }
-    }
-    return null;
+  const [leaderboardData, setleaderboardData] =
+    useState<LeaderboardDataWithRanks | null>();
+  const getUserId = () => {
+    return isAuthenticated && user ? user.userId! : "";
   };
 
   useEffect(() => {
     const fetchUsers = async () => {
       const response = await fetch(
-        `/api/conf/leaderboard?fid=${getFID()}&x=${getX()}`
+        `/api/conf/leaderboard?user_id=${getUserId()}`
       );
       const data: LeaderboardDataWithRanks = await response.json();
       setleaderboardData(data);
@@ -71,19 +53,15 @@ const Leaderboard = () => {
   }, []);
 
   useEffect(() => {
-    const p = getProvider();
-    setProvider(p);
-    if (p === "twitter") {
-      console.log("twitter auth", "getX()", getX());
-      setX(getX());
-      setFid(0);
-    } else if (p === "farcaster") {
-      setX("");
-      setFid(getFID());
-    } else {
-      setX("");
-      setFid(0);
-    }
+    const fetchUsers = async () => {
+      const response = await fetch(
+        `/api/conf/leaderboard?user_id=${getUserId()}`
+      );
+      const data: LeaderboardDataWithRanks = await response.json();
+      setleaderboardData(data);
+    };
+    fetchUsers();
+    setUserId(getUserId());
   }, [isAuthenticated]);
 
   const getRankColor = (rank: any, d: string) => {
@@ -140,7 +118,7 @@ const Leaderboard = () => {
           </Grid>
           <Grid
             mb={3}
-            key={`c-${leaderboardData?.currentUser.fid}`}
+            key={`c-${leaderboardData?.currentUser.user_id}`}
             container
             alignItems="center"
             sx={{
@@ -162,9 +140,7 @@ const Leaderboard = () => {
                   color: "#CDCDCD",
                 }}
               >
-                {leaderboardData?.currentUser.fid === -1
-                  ? "--"
-                  : leaderboardData?.currentUser.rank}
+                {leaderboardData?.currentUser.rank}
               </Typography>
             </Grid>
             <Grid item xs={2} alignItems={"center"} pl={2}>
@@ -177,15 +153,7 @@ const Leaderboard = () => {
                   borderColor: "inherit",
                 }}
                 alt="User Avatar"
-                src={
-                  user?.verifiedCredentials[0].oauthAccountPhotos &&
-                  Array.isArray(
-                    user?.verifiedCredentials[0].oauthAccountPhotos
-                  ) &&
-                  user?.verifiedCredentials[0].oauthAccountPhotos.length > 0
-                    ? user?.verifiedCredentials[0].oauthAccountPhotos[0]
-                    : ""
-                }
+                src={leaderboardData?.currentUser.profile_picture}
               />
             </Grid>
             <Grid item xs={4} alignItems={"center"}>
@@ -195,15 +163,13 @@ const Leaderboard = () => {
                 textOverflow={"ellipsis"}
                 overflow={"hidden"}
               >
-                {leaderboardData?.currentUser.fid === -1
-                  ? user?.verifiedCredentials[0].oauthDisplayName
-                  : leaderboardData?.currentUser.name}
+                {leaderboardData?.currentUser.username}
               </Typography>
             </Grid>
             <Grid item xs={2} container alignItems={"center"} pr={2}>
               <Typography fontWeight={900} variant="body1">
                 🏆
-                {leaderboardData?.currentUser.fid === -1
+                {leaderboardData?.currentUser.user_id === null
                   ? 0
                   : leaderboardData?.currentUser.points}
               </Typography>
@@ -219,7 +185,7 @@ const Leaderboard = () => {
                 alt="Degen"
               />
               <Typography fontWeight={900} variant="body1">
-                {leaderboardData?.currentUser.fid === -1
+                {leaderboardData?.currentUser.user_id === null
                   ? 0
                   : leaderboardData?.currentUser.award}
               </Typography>
@@ -257,18 +223,12 @@ const Leaderboard = () => {
             .map((user, index) => (
               <Box key={`ldr_data_${index}`}>
                 <Grid
-                  key={`${user.fid}-${index}`}
+                  key={`${user.user_id}-${index}`}
                   container
                   alignItems="center"
                   sx={{
-                    borderTop:
-                      getFID() && user.fid === getFID()
-                        ? ""
-                        : "1px solid #DCDCDC",
-                    borderBottom:
-                      getFID() && user.fid === getFID()
-                        ? ""
-                        : "1px solid #DCDCDC",
+                    borderTop: getUserId() ? "" : "1px solid #DCDCDC",
+                    borderBottom: getUserId() ? "" : "1px solid #DCDCDC",
                     borderLeft: "none",
                     borderRight: "none",
                     minHeight: "92px",
@@ -298,7 +258,7 @@ const Leaderboard = () => {
                         borderColor: getRankColor(user.rank, "inherit"),
                       }}
                       alt="User Avatar"
-                      src={user.image ? user.image : ""}
+                      src={user.profile_picture ? user.profile_picture : ""}
                     />
                   </Grid>
                   <Grid item xs={4} alignItems={"center"}>
@@ -309,7 +269,7 @@ const Leaderboard = () => {
                       ml={2}
                       sx={{ color: getRankColor(user.rank, "inherit") }}
                     >
-                      {user.name}
+                      {user.username}
                     </Typography>
                   </Grid>
                   <Grid item xs={2} container alignItems={"center"} pr={2}>
