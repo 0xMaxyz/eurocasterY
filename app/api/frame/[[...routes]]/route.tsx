@@ -115,7 +115,9 @@ app.frame("m/:home/:away/", async (c) => {
           <Button value={`${match_id}/${home}`}>
             {countryCodeToName(home as CountryCode)}
           </Button>,
-          <Button value={`${match_id}/0`}>DRAW</Button>,
+          new Date(match_date) < new Date(2024, 5, 27) && (
+            <Button value={`${match_id}/0`}>DRAW</Button>
+          ),
           <Button value={`${match_id}/${away}`}>
             {countryCodeToName(away as CountryCode)}
           </Button>,
