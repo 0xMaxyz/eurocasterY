@@ -12,6 +12,7 @@ import { LeaderboardDataWithRanks } from "@/lib/data/db";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { AuthProvider } from "./Matches";
 import { ENSData, getENS } from "@/lib/functions";
+import JAvatar from "./JdenticonAvatar";
 
 interface Leaderboard {
   topUsers: {
@@ -277,7 +278,7 @@ const Leaderboard = () => {
                     </Typography>
                   </Grid>
                   <Grid item xs={2} alignItems={"center"} pl={2}>
-                    <Avatar
+                    {/* <Avatar
                       variant="circular"
                       sx={{
                         width: ["40px", "65px"],
@@ -287,6 +288,11 @@ const Leaderboard = () => {
                       }}
                       alt="User Avatar"
                       src={user.profile_picture ? user.profile_picture : ""}
+                    /> */}
+                    <JAvatar
+                      color={getRankColor(user.rank, "inherit")}
+                      text={user.provider_identifier}
+                      src={user.profile_picture}
                     />
                   </Grid>
                   <Grid item xs={4} alignItems={"center"}>

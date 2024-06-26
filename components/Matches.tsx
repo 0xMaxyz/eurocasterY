@@ -238,11 +238,12 @@ const Matches = () => {
 
   const isKickoffPassed = function (refUTC: string) {
     const matchDate = new Date(refUTC);
+
     const currentTime = new Date();
     const currentTimeUTC = new Date(
       currentTime.getTime() + currentTime.getTimezoneOffset() * 60000
     );
-    return currentTimeUTC < matchDate;
+    return currentTime < matchDate;
   };
 
   return (
