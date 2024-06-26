@@ -90,6 +90,7 @@ export const createTables = async function () {
     user_id UUID NOT NULL, 
     points INT NOT NULL DEFAULT 0,
     award INT NOT NULL DEFAULT 0,
+    avg_time_diff DOUBLE PRECISION DEFAULT 0.0,
     UNIQUE (user_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON UPDATE CASCADE ON DELETE CASCADE
     );
@@ -150,15 +151,34 @@ export const getLeaderboardData = async function (
     // Get top 20 users by points
     const resp1 = await sql`
     WITH ranked_users AS (
-      SELECT u.user_id, u.username, u.profile_picture, l.points, l.award,
-             RANK() OVER (ORDER BY l.award DESC, l.points DESC) AS rank
-      FROM users u
-      JOIN leaderboard l ON u.user_id = l.user_id
-    )
-    SELECT ru.*, lp.provider_identifier, lp.provider_name
-    FROM ranked_users ru
-    JOIN login_providers lp ON ru.user_id = lp.user_id
-    ORDER BY ru.award DESC, ru.points DESC
+    SELECT
+        u.user_id,
+        u.username,
+        u.profile_picture,
+        l.points,
+        l.award,
+        lb.avg_time_diff,
+        RANK() OVER (ORDER BY l.award DESC, l.points DESC, lb.avg_time_diff DESC) AS rank
+    FROM
+        users u
+    JOIN leaderboard l ON u.user_id = l.user_id
+    LEFT JOIN (
+        SELECT user_id, avg_time_diff
+        FROM leaderboard
+    ) lb ON u.user_id = lb.user_id
+)
+SELECT
+    ru.points,
+    ru.award,
+    ru.avg_time_diff,
+    lp.provider_identifier,
+    lp.provider_name
+FROM
+    ranked_users ru
+JOIN
+    login_providers lp ON ru.user_id = lp.user_id
+ORDER BY
+    ru.award DESC, ru.points DESC, ru.avg_time_diff DESC
     LIMIT ${pageSize} OFFSET ${offset};
     `;
     const totalUsers = await sql`

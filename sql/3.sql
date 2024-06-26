@@ -52,15 +52,21 @@ BEGIN
 
         -- Step 2: Update leaderboard with average prediction time difference
         WITH avg_prediction_time_diff AS (
-            SELECT
-                p.user_id,
-                AVG(EXTRACT(EPOCH FROM (m.match_date - p.predicted_at))) AS avg_time_diff
-            FROM
-                predictions p
-            JOIN matches m ON p.match_id = m.match_id
-            GROUP BY
-                p.user_id
+    SELECT
+        p.user_id,
+        AVG(EXTRACT(EPOCH FROM (m.match_date - p.predicted_at))) AS avg_time_diff
+    FROM
+        predictions p
+    JOIN matches m ON p.match_id = m.match_id
+    WHERE
+        p.counted = true                    
+        AND (
+            (p.prediction = 0 AND m.winner_id = 0)  
+            OR p.prediction = m.winner_id          
         )
+    GROUP BY
+        p.user_id
+)
         UPDATE leaderboard lb
         SET avg_time_diff = ap.avg_time_diff
         FROM avg_prediction_time_diff ap
