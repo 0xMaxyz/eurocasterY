@@ -369,7 +369,7 @@ JOIN
 JOIN 
     teams home ON m.homeTeam_id = home.team_id
 WHERE 
-    m.match_date >= NOW() AND m.status = 'UPCOMING'
+    m.status = 'UPCOMING'
 ORDER BY 
     m.match_date ASC;
   `;

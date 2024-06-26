@@ -45,6 +45,7 @@ const Matches = () => {
       const response = await fetch(`/api/conf/matches`);
       if (response.ok) {
         const data: MatchAndTeamInfo[] = await response.json();
+        //console.log(data);
         setMatches(data);
         setLoading(false);
       }
