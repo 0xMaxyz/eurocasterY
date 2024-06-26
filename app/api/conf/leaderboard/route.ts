@@ -10,7 +10,7 @@ export const GET = async function (request: NextRequest) {
     const page = parseInt(url.searchParams.get("page") || "1");
     const pageSize = parseInt(url.searchParams.get("pageSize") || "10");
 
-    const resp = await getLeaderboardData(user_id);
+    const resp = await getLeaderboardData(user_id, page, pageSize);
 
     if (!resp) {
       throw new Error("No entry found in leaderboard table.");

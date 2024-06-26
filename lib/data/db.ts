@@ -137,12 +137,16 @@ export const addOrUpdateMatch = async function (match: createMatchDto) {
 export interface LeaderboardDataWithRanks {
   topUsers: LeaderboardData[];
   currentUser: LeaderboardData;
+  totalItems: number;
 }
 
 export const getLeaderboardData = async function (
-  user_id: string | null
+  user_id: string | null,
+  page: number,
+  pageSize: number
 ): Promise<LeaderboardDataWithRanks | null> {
   try {
+    const offset = (page - 1) * pageSize;
     // Get top 20 users by points
     const resp1 = await sql`
     WITH ranked_users AS (
@@ -155,9 +159,12 @@ export const getLeaderboardData = async function (
     FROM ranked_users ru
     JOIN login_providers lp ON ru.user_id = lp.user_id
     ORDER BY ru.award DESC, ru.points DESC
-    LIMIT 20;
+    LIMIT ${pageSize} OFFSET ${offset};
     `;
-    // console.log(resp1.rows);
+    const totalUsers = await sql`
+    SELECT COUNT(*) FROM leaderboard;
+    `;
+    const totalItems = parseInt(totalUsers.rows[0].count);
 
     let topUsers: LeaderboardData[] = [];
     let currentUser: LeaderboardData = {
@@ -225,7 +232,11 @@ export const getLeaderboardData = async function (
       }
     }
     //console.log("topUsers:", topUsers, "currentUser:", currentUser);
-    return { topUsers: topUsers, currentUser: currentUser };
+    return {
+      topUsers: topUsers,
+      currentUser: currentUser,
+      totalItems: totalItems,
+    };
   } catch (error) {
     console.error(`Db:: Error reading leaderboard, ${error}`);
     return null;

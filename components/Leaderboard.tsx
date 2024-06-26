@@ -5,6 +5,7 @@ import {
   Card,
   CardContent,
   Grid,
+  Pagination,
   Skeleton,
   Typography,
 } from "@mui/material";
@@ -35,9 +36,13 @@ interface Leaderboard {
 
 const Leaderboard = () => {
   const [userId, setUserId] = useState<string>("");
+  const [loading, setLoading] = useState(true);
   const { isAuthenticated, user } = useDynamicContext();
   const [leaderboardData, setleaderboardData] =
     useState<LeaderboardDataWithRanks | null>();
+  const [page, setPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const pageSize = 10;
   const getUserId = () => {
     return isAuthenticated && user ? user.userId! : "";
   };
@@ -62,43 +67,39 @@ const Leaderboard = () => {
     }
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page: number) => {
+    setLoading(true);
     const response = await fetch(
-      `/api/conf/leaderboard?user_id=${getUserId()}`
+      `/api/conf/leaderboard?user_id=${getUserId()}&page=${page}&pageSize=${pageSize}`
     );
     const data: LeaderboardDataWithRanks = await response.json();
     await getEns(data);
     setleaderboardData(data);
+    setTotalItems(data.totalItems);
+    setLoading(false);
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(page);
+  }, [page]);
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(page);
     setUserId(getUserId());
   }, [isAuthenticated]);
+
+  const handlePageChange = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value);
+  };
 
   const getRankColor = (rank: any, d: string) => {
     if (rank === "1") return "#FFA800";
     if (rank === "2") return "#929292";
     if (rank === "3") return "#B96400";
     return d;
-  };
-
-  const getColor = (rank: any) => {
-    if (rank === "1") return "#FFA800";
-    if (rank === "2") return "#929292";
-    if (rank === "3") return "#B96400";
-    return "inherit";
-  };
-
-  const getBgColor = (rank: any) => {
-    if (rank === "1") return "#FFEBA5";
-    if (rank === "2") return "#FAFAFA";
-    if (rank === "3") return "#FFEBCD";
-    return "inherit";
   };
 
   function formatEthereumAddress(
@@ -246,7 +247,7 @@ const Leaderboard = () => {
         </Grid>
       </Grid>
 
-      {leaderboardData
+      {!loading && leaderboardData
         ? leaderboardData?.topUsers
             .sort((x, y) => x.rank - y.rank)
             .map((user, index) => (
@@ -333,7 +334,7 @@ const Leaderboard = () => {
                 </Grid>
               </Box>
             ))
-        : Array.from(new Array(20)).map((_, index) => (
+        : Array.from(new Array(10)).map((_, index) => (
             <Box key={`ldr_skl_${index}`}>
               <Grid
                 container
@@ -371,6 +372,14 @@ const Leaderboard = () => {
               </Grid>
             </Box>
           ))}
+      <Box display="flex" justifyContent="center" sx={{}}>
+        <Pagination
+          count={Math.ceil(totalItems / pageSize)}
+          page={page}
+          onChange={handlePageChange}
+          sx={{ mt: 2 }}
+        />
+      </Box>
     </Box>
   );
 };
