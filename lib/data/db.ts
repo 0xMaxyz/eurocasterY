@@ -168,9 +168,7 @@ export const getLeaderboardData = async function (
     ) lb ON u.user_id = lb.user_id
 )
 SELECT
-    ru.points,
-    ru.award,
-    ru.avg_time_diff,
+    ru.*,
     lp.provider_identifier,
     lp.provider_name
 FROM
@@ -226,14 +224,25 @@ ORDER BY
     if (user_id) {
       const resp2 = await sql`
       WITH ranked_users AS (
-        SELECT u.user_id, u.username, u.profile_picture, l.points, l.award,
-        RANK() OVER (ORDER BY l.points DESC) AS rank
-        FROM users u
-        JOIN leaderboard l ON u.user_id = l.user_id
-      )
-      SELECT *
-      FROM ranked_users
-      WHERE user_id = ${user_id}
+    SELECT
+        u.user_id,
+        u.username,
+        u.profile_picture,
+        l.points,
+        l.award,
+        lb.avg_time_diff,
+        RANK() OVER (ORDER BY l.award DESC, l.points DESC, lb.avg_time_diff DESC) AS rank
+    FROM
+        users u
+    JOIN leaderboard l ON u.user_id = l.user_id
+    LEFT JOIN (
+        SELECT user_id, avg_time_diff
+        FROM leaderboard
+    ) lb ON u.user_id = lb.user_id
+)
+    SELECT *
+    FROM ranked_users
+    WHERE user_id = ${user_id};
       `;
 
       if (resp2.rowCount > 0) {
