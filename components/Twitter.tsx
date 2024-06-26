@@ -16,7 +16,7 @@ const TwitterButton = () => {
         color: "white",
         opacity: "1",
         position: "fixed",
-        bottom: "2rem",
+        bottom: "1rem",
         left: "50%",
         transform: "translateX(-50%)",
         zIndex: (theme) => theme.zIndex.drawer + 2,

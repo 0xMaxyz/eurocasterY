@@ -372,7 +372,7 @@ const Leaderboard = () => {
               </Grid>
             </Box>
           ))}
-      <Box display="flex" justifyContent="center" sx={{}}>
+      <Box display="flex" justifyContent="center" mb={2}>
         <Pagination
           count={Math.ceil(totalItems / pageSize)}
           page={page}
