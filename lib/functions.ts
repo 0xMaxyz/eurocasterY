@@ -22,6 +22,12 @@ export interface FarcasterData {
   userId: string;
 }
 
+export interface ENSData {
+  name: string;
+  owner: string;
+  avatar: string;
+}
+
 export const getFarcasterData = async function (_fids: string) {
   // fids: "353308", "397610", "232017"
   try {
@@ -49,6 +55,42 @@ export const getFarcasterData = async function (_fids: string) {
     }
   } catch (error) {
     logger.error(`Error reading farcaster data from airstack, ${error}`);
+    return [];
+  }
+};
+
+export const getENS = async function (wallet: string) {
+  try {
+    const query = `query GetENSNameAndAvatar {
+  Domains(
+    input: {filter: {resolvedAddress: {_eq: "${wallet}"}}, blockchain: ethereum}
+  ) {
+    Domain {
+      name
+      owner
+      avatar
+    }
+  }
+}`;
+
+    const { data, error } = await fetchQuery(query);
+
+    if (error) {
+      throw new Error(error);
+    }
+
+    if (
+      data?.Domains.Domain &&
+      Array.isArray(data.Domains.Domain) &&
+      data.Domains.Domain.length > 0
+    ) {
+      const ens: ENSData[] = data.Domains.Domain;
+      return ens;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    logger.error(`Error reading ENS data from airstack, ${error}`);
     return [];
   }
 };

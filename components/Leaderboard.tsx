@@ -11,6 +11,7 @@ import {
 import { LeaderboardDataWithRanks } from "@/lib/data/db";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { AuthProvider } from "./Matches";
+import { ENSData, getENS } from "@/lib/functions";
 
 interface Leaderboard {
   topUsers: {
@@ -40,26 +41,40 @@ const Leaderboard = () => {
     return isAuthenticated && user ? user.userId! : "";
   };
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await fetch(
-        `/api/conf/leaderboard?user_id=${getUserId()}`
-      );
-      const data: LeaderboardDataWithRanks = await response.json();
-      setleaderboardData(data);
-    };
+  const getEns = async function (data: LeaderboardDataWithRanks) {
+    if (data.topUsers && data.topUsers.length > 0) {
+      for (const ldr of data.topUsers) {
+        const { provider_identifier, provider_name } = ldr;
+        if (provider_name === "wallet") {
+          // check for ens
+          const resp = await fetch(`/api/conf/getens?w=${provider_identifier}`);
+          if (resp.ok) {
+            const ens: ENSData[] = await resp.json();
 
+            if (ens && ens.length > 0) {
+              ldr.profile_picture = ens[0].avatar;
+              ldr.username = ens[0].name;
+            }
+          }
+        }
+      }
+    }
+  };
+
+  const fetchUsers = async () => {
+    const response = await fetch(
+      `/api/conf/leaderboard?user_id=${getUserId()}`
+    );
+    const data: LeaderboardDataWithRanks = await response.json();
+    await getEns(data);
+    setleaderboardData(data);
+  };
+
+  useEffect(() => {
     fetchUsers();
   }, []);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await fetch(
-        `/api/conf/leaderboard?user_id=${getUserId()}`
-      );
-      const data: LeaderboardDataWithRanks = await response.json();
-      setleaderboardData(data);
-    };
     fetchUsers();
     setUserId(getUserId());
   }, [isAuthenticated]);
