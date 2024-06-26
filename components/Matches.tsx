@@ -427,57 +427,70 @@ const Matches = () => {
                             </Typography>
                           </Stack>
                         </Button>
-                        <Divider
-                          orientation="vertical"
-                          variant="middle"
-                          flexItem
-                          sx={{ marginRight: "8px", marginLeft: "8px" }}
-                        />
-                        <Button
-                          variant="text"
-                          sx={{
-                            padding: "0px !important",
-                            minWidth: "30px !important",
-                            Width: "30px",
-                            flexShrink: 0,
-                            flexGrow: 0,
-                          }}
-                          disabled={isButtonDiabled(match, "0")}
-                          onClick={() => vote(match.match_id, "0")}
-                        >
-                          <Typography
-                            fontSize="0.75rem"
-                            fontWeight={900}
-                            sx={{
-                              color: isAuthenticated
-                                ? matchColor(
-                                    match.match_id.toString(),
-                                    "0",
-                                    "green",
-                                    "black",
-                                    "none"
-                                  )
-                                : "none",
-                              opacity: isAuthenticated
-                                ? matchColor(
-                                    match.match_id.toString(),
-                                    "0",
-                                    "1",
-                                    "0.5",
-                                    "1"
-                                  )
-                                : "1",
-                            }}
-                          >
-                            Draw
-                          </Typography>
-                        </Button>
-                        <Divider
-                          orientation="vertical"
-                          variant="middle"
-                          flexItem
-                          sx={{ marginRight: "8px", marginLeft: "8px" }}
-                        />
+                        {new Date(match.match_date) < new Date(2024, 5, 27) ? (
+                          <>
+                            {console.log(new Date(2024, 0, 27))}
+                            <Divider
+                              orientation="vertical"
+                              variant="middle"
+                              flexItem
+                              sx={{ marginRight: "8px", marginLeft: "8px" }}
+                            />
+                            <Button
+                              variant="text"
+                              sx={{
+                                padding: "0px !important",
+                                minWidth: "30px !important",
+                                Width: "30px",
+                                flexShrink: 0,
+                                flexGrow: 0,
+                              }}
+                              disabled={isButtonDiabled(match, "0")}
+                              onClick={() => vote(match.match_id, "0")}
+                            >
+                              <Typography
+                                fontSize="0.75rem"
+                                fontWeight={900}
+                                sx={{
+                                  color: isAuthenticated
+                                    ? matchColor(
+                                        match.match_id.toString(),
+                                        "0",
+                                        "green",
+                                        "black",
+                                        "none"
+                                      )
+                                    : "none",
+                                  opacity: isAuthenticated
+                                    ? matchColor(
+                                        match.match_id.toString(),
+                                        "0",
+                                        "1",
+                                        "0.5",
+                                        "1"
+                                      )
+                                    : "1",
+                                }}
+                              >
+                                Draw
+                              </Typography>
+                            </Button>
+                            <Divider
+                              orientation="vertical"
+                              variant="middle"
+                              flexItem
+                              sx={{ marginRight: "8px", marginLeft: "8px" }}
+                            />
+                          </>
+                        ) : (
+                          <Divider
+                            orientation="vertical"
+                            variant="middle"
+                            flexItem
+                            sx={{ marginRight: "2rem", marginLeft: "2rem" }}
+                          />
+                        )}
+
                         <Button
                           sx={{
                             padding: "0px",
