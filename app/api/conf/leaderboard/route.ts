@@ -7,6 +7,8 @@ export const GET = async function (request: NextRequest) {
   try {
     const url = new URL(request.url);
     const user_id = url.searchParams.get("user_id");
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const pageSize = parseInt(url.searchParams.get("pageSize") || "10");
 
     const resp = await getLeaderboardData(user_id);
 

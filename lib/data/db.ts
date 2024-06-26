@@ -146,15 +146,15 @@ export const getLeaderboardData = async function (
     // Get top 20 users by points
     const resp1 = await sql`
     WITH ranked_users AS (
-    SELECT u.user_id, u.username, u.profile_picture, l.points, l.award,
-           RANK() OVER (ORDER BY l.points DESC) AS rank
-    FROM users u
-    JOIN leaderboard l ON u.user_id = l.user_id
+      SELECT u.user_id, u.username, u.profile_picture, l.points, l.award,
+             RANK() OVER (ORDER BY l.award DESC, l.points DESC) AS rank
+      FROM users u
+      JOIN leaderboard l ON u.user_id = l.user_id
     )
     SELECT ru.*, lp.provider_identifier, lp.provider_name
     FROM ranked_users ru
     JOIN login_providers lp ON ru.user_id = lp.user_id
-    ORDER BY ru.award DESC
+    ORDER BY ru.award DESC, ru.points DESC
     LIMIT 20;
     `;
     // console.log(resp1.rows);
