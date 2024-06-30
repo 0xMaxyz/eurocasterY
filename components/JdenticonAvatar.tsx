@@ -11,9 +11,7 @@ const JAvatar: React.FC<JdenticonAvatarProps> = ({ text, color, src }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    if (svgRef.current && window.jdenticon) {
-      window.jdenticon.update(svgRef.current as unknown as HTMLElement, text);
-    }
+    window.jdenticon;
   }, [text]);
 
   return (
