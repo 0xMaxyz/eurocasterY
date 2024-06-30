@@ -28,7 +28,7 @@ const JAvatar: React.FC<JdenticonAvatarProps> = ({ text, color, src }) => {
         src
           ? src
           : `data:image/svg+xml;utf8,${encodeURIComponent(
-              svgRef.current?.outerHTML || ""
+              svgRef.current?.innerHtml || ""
             )}`
       }
     >
