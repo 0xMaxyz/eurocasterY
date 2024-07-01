@@ -10,6 +10,15 @@ export const metadata: Metadata = {
   description: "Predict Euro2024 games and win tokens!",
 };
 
+const cssOverrides = `
+    .dynamic-widget__container .button {
+      background-color: black !important;
+      color: white !important;
+      height: 40px !important;
+      border-radius: 20px !important; /* Assuming the button height is 40px */
+    }
+  `;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,6 +33,7 @@ export default function RootLayout({
             settings={{
               environmentId: process.env.DYNAMICS_ENV_ID!,
               walletConnectors: [EthereumWalletConnectors],
+              cssOverrides: cssOverrides,
             }}
           >
             {children}

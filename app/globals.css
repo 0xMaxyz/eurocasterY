@@ -14,7 +14,10 @@ body {
     0 0.375rem 1.25rem 0 rgba(0, 0, 0, 0.19);
 }
 
-/* .dynamic-shadow-dom {
-  --dynamic-connect-button-background: "#000";
-  --dynamic-connect-button-color: "#fff";
-} */
+.dynamic-shadow-dom {
+  --dynamic-connect-button-background: #000;
+  --dynamic-connect-button-color: #fff;
+  --dynamic-text-primary: #fff;
+  --dynamic-text-size-button-primary: 16px;
+  --dynamic-font-family-primary: "Roboto", sans-serif;
+}
