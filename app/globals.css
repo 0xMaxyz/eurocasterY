@@ -14,10 +14,31 @@ body {
     0 0.375rem 1.25rem 0 rgba(0, 0, 0, 0.19);
 }
 
+/* .dynamic-shadow-dom {
+  --dynamic-connect-button-background: #000;
+  --dynamic-connect-button-color: #fff;
+  --dynamic-text-primary: #fff;
+  --dynamic-text-size-button-primary: 16px;
+  --dynamic-font-family-primary: "Roboto", sans-serif;
+} */
+
 .dynamic-shadow-dom {
   --dynamic-connect-button-background: #000;
   --dynamic-connect-button-color: #fff;
   --dynamic-text-primary: #fff;
   --dynamic-text-size-button-primary: 16px;
   --dynamic-font-family-primary: "Roboto", sans-serif;
+}
+
+.dynamic-shadow-dom .button {
+  background-color: var(--dynamic-connect-button-background);
+  color: var(--dynamic-connect-button-color);
+  height: 40px;
+  border-radius: 40px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dynamic-shadow-dom .button:hover {
+  background-color: #fff;
+  color: #000;
 }

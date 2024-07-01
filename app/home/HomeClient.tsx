@@ -14,7 +14,7 @@ import Matches from "@/components/Matches";
 import Leaderboard from "@/components/Leaderboard";
 import TaC from "@/components/Tac";
 import { DynamicWidget, useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import LoginWrapper from "./DynamicWidgetWrapper";
+import LoginWrapper from "./LoginWrapper";
 import ScrollToTop from "@/components/ScrollToTop";
 import { useRouter, useSearchParams } from "next/navigation";
 import TwitterButton from "@/components/Twitter";

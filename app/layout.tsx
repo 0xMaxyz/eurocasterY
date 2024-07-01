@@ -11,11 +11,17 @@ export const metadata: Metadata = {
 };
 
 const cssOverrides = `
-    .dynamic-widget__container .button {
-      background-color: black !important;
-      color: white !important;
+    dynamic-widget__container .button {
+      background-color: var(--dynamic-connect-button-background) !important;
+      color: var(--dynamic-connect-button-color) !important;
       height: 40px !important;
-      border-radius: 20px !important; /* Assuming the button height is 40px */
+      border-radius: 20px !important; /* Half of the button height */
+      transition: background-color 0.3s ease, color 0.3s ease !important;
+    }
+    
+    .dynamic-widget__container .button:hover {
+      background-color: #fff !important; /* Hover background color */
+      color: #000 !important; /* Hover text color */
     }
   `;
 

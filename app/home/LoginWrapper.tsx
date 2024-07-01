@@ -55,10 +55,11 @@ const LoginWrapper: FC = () => {
   };
 
   return (
-    <DynamicWidget
-      innerButtonComponent={<CustomInnerButton />}
-      buttonClassName="login-button"
-    />
+    <CustomInnerButton />
+    // <DynamicWidget
+    //   innerButtonComponent={<CustomInnerButton />}
+    //   buttonClassName="login-button"
+    // />
   );
 };
 
