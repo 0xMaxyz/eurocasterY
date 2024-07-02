@@ -27,27 +27,6 @@ const LoginWrapper: FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const shadowRoot = document.querySelector(
-        ".dynamic-widget__container"
-      )?.shadowRoot;
-      if (shadowRoot) {
-        const button = shadowRoot.querySelector(
-          ".button"
-        ) as HTMLButtonElement | null;
-        if (button) {
-          button.style.backgroundColor = "black";
-          button.style.color = "white";
-          button.style.height = "40px";
-          button.style.borderRadius = `${button.offsetHeight / 2}px`; // Set border-radius to half the height for a circular effect
-          clearInterval(interval); // Stop checking once the button is found and updated
-        }
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, [isAuthenticated]);
-
   return (
     <DynamicWidget
       innerButtonComponent={<CustomInnerButton />}
