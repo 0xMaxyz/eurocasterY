@@ -42,11 +42,6 @@ export const GET = async function (request: NextRequest) {
 
       let matchDtos: createMatchDto[] = [];
 
-      // convert to createMatchDto
-      const nm = matches.filter(
-        (m) => !m.homeTeam.isPlaceHolder && !m.awayTeam.isPlaceHolder
-      );
-      console.log(nm.length);
       matches
         .filter((m) => !m.homeTeam.isPlaceHolder && !m.awayTeam.isPlaceHolder)
         .forEach((match) => {
@@ -105,7 +100,7 @@ export const GET = async function (request: NextRequest) {
 
       return new Response(
         // JSON.stringify(mappedMatches),
-        JSON.stringify(`"Number of received Matches", ${matches.length}`),
+        JSON.stringify(mappedMatches),
         {
           status: 200,
           headers: HEADERS,
