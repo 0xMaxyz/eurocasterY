@@ -577,7 +577,11 @@ export const updateLeaderboard = async function () {
   try {
     await sql`
       UPDATE predictions SET counted = false;
+      `;
+    await sql`
       DELETE FROM leaderboard;
+      `;
+    await sql`
       CALL update_leaderboard();
     `;
     logger.info("Db:: Prediction points updated");
