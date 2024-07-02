@@ -22,7 +22,7 @@ body {
   --dynamic-font-family-primary: "Roboto", sans-serif;
 } */
 
-.dynamic-shadow-dom {
+/* .dynamic-shadow-dom {
   --dynamic-connect-button-background: #000;
   --dynamic-connect-button-color: #fff;
   --dynamic-text-primary: #fff;
@@ -41,4 +41,4 @@ body {
 .dynamic-shadow-dom .button:hover {
   background-color: #fff;
   color: #000;
-}
+} */
