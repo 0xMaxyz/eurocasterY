@@ -17,5 +17,6 @@ jobs:
       env:
         BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
       run: |
+        echo "BEARER_TOKEN: $BEARER_TOKEN"
         curl -X GET https://eurocaster.vercel.app/api/conf/calculatepoints \
           -H "Authorization: Bearer $BEARER_TOKEN"
