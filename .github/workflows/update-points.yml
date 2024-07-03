@@ -2,7 +2,7 @@ name: Update Points
 
 on:
   schedule:
-    - cron: '*/15 * * * *' 
+    - cron: '*/15 * * * *'  # Run every 15 minutes
   workflow_dispatch:
 
 jobs:
@@ -11,10 +11,11 @@ jobs:
 
     steps:
     - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Make API call to update leaderboard
       env:
         BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
-      uses: actions/checkout@v2
-
-    - name: Make API call to update leaderboard
       run: |
-        curl -X GET https://eurocaster.vercel.app/api/conf/calculatepoints -H "Authorization: Bearer $BEARER_TOKEN"
+        curl -X GET https://eurocaster.vercel.app/api/conf/calculatepoints \
+          -H "Authorization: Bearer $BEARER_TOKEN"
