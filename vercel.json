@@ -4,10 +4,6 @@
     {
       "path": "/api/conf/fetchdata",
       "schedule": "0,30 12-23 * 6,7 *"
-    },
-    {
-      "path": "/api/conf/calculatepoints",
-      "schedule": "15,45 12-23 * 6,7 *"
     }
   ],
   "routes": [
