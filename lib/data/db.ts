@@ -575,14 +575,14 @@ export const predict = async function (
 
 export const updateLeaderboard = async function () {
   try {
+    // await sql`
+    //   UPDATE predictions SET counted = false;
+    //   `;
+    // await sql`
+    //   DELETE FROM leaderboard;
+    //   `;
     await sql`
-      UPDATE predictions SET counted = false;
-      `;
-    await sql`
-      DELETE FROM leaderboard;
-      `;
-    await sql`
-      CALL update_leaderboard();
+      CALL update_leaderboard2();
     `;
     logger.info("Db:: Prediction points updated");
   } catch (error) {
