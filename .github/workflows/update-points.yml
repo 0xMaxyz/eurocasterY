@@ -11,6 +11,8 @@ jobs:
 
     steps:
     - name: Checkout repository
+      env:
+        BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
       uses: actions/checkout@v2
 
     - name: Make API call to update leaderboard
