@@ -89,6 +89,11 @@ const TaC = () => {
         </li>
         <li className="c3 li-bullet-0">
           <span className="c6">
+            Users earn double points for correct predictions and have their points reset to one for incorrect predictions. To resolve ties among users with the same points, we use a tie-breaker based on the timeliness of correct predictions. We calculate the average time difference between each correct prediction and the match kickoff. Users with a higher average time difference, indicating they generally make their predictions sooner, are ranked higher. This ensures a fair and competitive ranking system.
+          </span>
+        </li>
+        <li className="c3 li-bullet-0">
+          <span className="c6">
             To participate in the contest, it is necessary to provide the
             following personal data:
           </span>
